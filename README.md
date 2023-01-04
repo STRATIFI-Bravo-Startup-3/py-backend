@@ -1,2 +1,2 @@
-# py-backend
+# The Backbone to Stratifi
 Stratifi Backend
