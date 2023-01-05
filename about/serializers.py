@@ -1,7 +1,38 @@
 from rest_framework import serializers 
-from .models import Page
+from .models import Page, About, Vission, Mission, Goal, Service
 
 
+
+# Serializers for all the models
+class AboutSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = About
+        fields = '__all__'
+
+class VissionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Vission
+        fields = '__all__'
+
+class MissionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Mission
+        fields = '__all__'
+
+class GoalSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Goal
+        fields = '__all__'
+
+class ServiceSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Service
+        fields = '__all__'
 
 class PageSerializer(serializers.Serializer): 
 
@@ -24,3 +55,4 @@ class PageSerializer(serializers.Serializer):
 
         instance.save()
         return instance
+    

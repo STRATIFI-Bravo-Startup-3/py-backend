@@ -140,6 +140,19 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# Add all config for the Django Static files below
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
@@ -155,6 +168,7 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+        'rest_framework.permissions.IsAuthenticated',
     ],
 }
 
@@ -175,12 +189,12 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_ALL_ORIGINS = True
 
 
-EMAIL_BACKEND = config('EMAIL_BACKEND')
+#EMAIL_BACKEND = config('EMAIL_BACKEND')
 SITE_NAME = "Stratifi_ng"
 
-EMAIL_HOST = config('EMAIL_HOST')
-EMAIL_HOST_USER = config('EMAIL_HOST_USER') 
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+#EMAIL_HOST = config('EMAIL_HOST')
+#EMAIL_HOST_USER = config('EMAIL_HOST_USER') 
+#EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 #EMAIL_HOST_USERNAME = config('EMAIL_HOST_USERNAME')
 
 #25, 587	(for unencrypted/TLS connections)
