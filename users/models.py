@@ -17,7 +17,9 @@ class User(AbstractUser):
 
     is_verified=models.BooleanField(default=False)
 
-    profile_pic = models.ImageField(null=True, blank=True, upload_to="static/profile/images", default="images/user-default.png",)
+# Have to comment out the profile_pic object before the terminal errors was fix
+
+    #profile_pic = models.ImageField(null=True, blank=True, upload_to="static/profile/images", default="images/user-default.png",)
 
     def __str__(self) :
         return self.username

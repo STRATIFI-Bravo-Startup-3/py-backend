@@ -3,7 +3,50 @@ from django.template.defaultfilters import slugify
 from django.urls import reverse
 
 
+# For about file coding, also include a create date and time
+class About(models.Model):
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    created = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.title
+
+# for the Vission coding
+class Vision(models.Model):
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+    
+# Mission modelling
+class Mission(models.Model):
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+# Goals modelling
+class Goal(models.Model):
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+# Service modelling
+class Service(models.Model):
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
 
 class Page(models.Model): 
     title = models.CharField(max_length=120) 
@@ -24,3 +67,4 @@ class Page(models.Model):
         if not self.slug:
             self.slug = slugify(self.title)
         return super().save(*args, **kwargs)
+    

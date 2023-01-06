@@ -8,7 +8,11 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
+<<<<<<< HEAD
 set VIRTUAL_ENV=C:\Users\Acer\Documents\py-backend\venv
+=======
+set VIRTUAL_ENV=C:\Users\WALSOFT COMPUTERS\py-backend\venv
+>>>>>>> 464033bce3af946f194f20424fa17f1faa53d683
 
 if not defined PROMPT set PROMPT=$P$G
 

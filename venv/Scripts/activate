@@ -38,7 +38,11 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
+<<<<<<< HEAD
 VIRTUAL_ENV="C:\Users\Acer\Documents\py-backend\venv"
+=======
+VIRTUAL_ENV="C:\Users\WALSOFT COMPUTERS\py-backend\venv"
+>>>>>>> 464033bce3af946f194f20424fa17f1faa53d683
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
