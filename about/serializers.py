@@ -1,5 +1,5 @@
 from rest_framework import serializers 
-from .models import Page, About, Vission, Mission, Goal, Service
+from .models import Page, About, Vision, Mission, Goal, Service
 
 
 
@@ -10,10 +10,10 @@ class AboutSerializer(serializers.ModelSerializer):
         model = About
         fields = '__all__'
 
-class VissionSerializer(serializers.ModelSerializer):
+class VisionSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Vission
+        model = Vision
         fields = '__all__'
 
 class MissionSerializer(serializers.ModelSerializer):

@@ -1,7 +1,7 @@
 from rest_framework.response import Response 
 from rest_framework.views import APIView 
-from .models import Page, About, Vission, Mission, Goal, Service 
-from .serializers import PageSerializer, AboutSerializer, VissionSerializer, MissionSerializer, GoalSerializer, ServiceSerializer
+from .models import Page, About, Vision, Mission, Goal, Service 
+from .serializers import PageSerializer, AboutSerializer, VisionSerializer, MissionSerializer, GoalSerializer, ServiceSerializer
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
 
@@ -26,7 +26,7 @@ def Home(request):
 def apiOverview(request):
     api_urls = {
         'About': '/aboutus/',
-        'Vission': '/vission/',
+        'Vision': '/vision/',
         'Mission': '/mission/',
         'Goal': '/goal/',
         'Service': '/service/',
@@ -46,8 +46,8 @@ def about(request):
 @ api_view(['GET'])
 @permission_classes((permissions.AllowAny,))
 def vission(request):
-    vissions = Vission.objects.all()
-    serializer = VissionSerializer(vissions, many=True)
+    vissions = Vision.objects.all()
+    serializer = VisionSerializer(vissions, many=True)
     return Response(serializer.data)
 
     return HttpResponse("the Our Vission page goes here")

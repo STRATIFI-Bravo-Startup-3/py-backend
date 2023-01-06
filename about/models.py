@@ -13,7 +13,7 @@ class About(models.Model):
         return self.title
 
 # for the Vission coding
-class Vission(models.Model):
+class Vision(models.Model):
     title = models.CharField(max_length=200)
     content = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
