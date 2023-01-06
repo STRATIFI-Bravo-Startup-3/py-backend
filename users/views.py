@@ -19,8 +19,6 @@ from django.shortcuts import redirect, render
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
-
-from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.shortcuts import get_object_or_404
 
@@ -216,3 +214,37 @@ class GetUserProfileView(generics.RetrieveUpdateAPIView):
             return Response({ 'error': 'Something went wrong when retrieving profile' })
 
 
+class BrandListCreateView(generics.ListCreateAPIView):
+    queryset = Brand.objects.all()
+    serializer_class = BrandProfileSerializer
+
+class BrandDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Brand.objects.all()
+    serializer_class = BrandProfileSerializer
+
+
+class EmployeeListCreateView(generics.ListCreateAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeProfileSerializer
+
+class EmployeeDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeProfileSerializer
+
+
+class InfluencerListCreateView(generics.ListCreateAPIView):
+    queryset = Influencer.objects.all()
+    serializer_class = InfluencerProfileSerializer
+
+class InfluencerDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Influencer.objects.all()
+    serializer_class = InfluencerProfileSerializer
+
+
+class UpdateProfilePicView(generics.ListCreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = ProfilePictureUpdateSerializer
+
+class UpdateProfilePicViewDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = ProfilePictureUpdateSerializer

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
+from django_countries.serializers import CountryFieldMixin
 
 from .models import User, Influencer, Brand, Employee
 
@@ -146,17 +147,18 @@ class CustomTokenCreateSerializer(TokenCreateSerializer):
         self.fail("invalid_credentials")
 
 
-class BrandProfileSerializer(serializers.ModelSerializer):
+
+class BrandProfileSerializer(CountryFieldMixin, serializers.ModelSerializer):
     class Meta:
         model = Brand
         fields = '__all__'
 
-class InfluencerProfileSerializer(serializers.ModelSerializer):
+class InfluencerProfileSerializer(CountryFieldMixin, serializers.ModelSerializer):
     class Meta:
         model = Influencer
         fields = '__all__'
 
-class EmployeeProfileSerializer(serializers.ModelSerializer):
+class EmployeeProfileSerializer(CountryFieldMixin, serializers.ModelSerializer):
     class Meta:
         model = Employee
         fields = '__all__'
@@ -165,3 +167,9 @@ class ProfilePictureUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['profile_pic']
+
+class UpdateUserProfileView(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = []
+        
