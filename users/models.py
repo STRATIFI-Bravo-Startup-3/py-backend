@@ -39,19 +39,7 @@ class Influencer(models.Model):
     portfolio = models.TextField(null=True, blank=True)
     about = models.TextField(null=True, blank=True)
     niche = models.CharField(max_length=200, null=True, blank=True)
-    website = models.URLField(null=True, blank=True)
-    linkedin_url = models.URLField(null=True, blank=True)
-    linkedin_followers = models.IntegerField(null=True, blank=True)
-    facebook_url = models.URLField(null=True, blank=True)
-    facebook_followers = models.IntegerField(null=True, blank=True)
-    instagram_url = models.URLField(null=True, blank=True)
-    instagram_followers = models.IntegerField(null=True, blank=True)
-    twitter_url = models.URLField(null=True, blank=True)
-    twitter_followers = models.IntegerField(null=True, blank=True)
-    tik_tok_url = models.URLField(null=True, blank=True)
-    tit_tok_followers = models.IntegerField(null=True, blank=True)
-    youtube_url = models.URLField(null=True, blank=True)
-    youtube_subscriber = models.IntegerField(null=True, blank=True)
+    
 
     def __str__(self):
         return self.user.username
@@ -60,7 +48,6 @@ class Influencer(models.Model):
 
 class Brand(models.Model):
     user=models.OneToOneField(User, related_name="employer", on_delete=models.CASCADE)
-    
     company_name=models.CharField(max_length=200, null=True, blank=True)
     niche = models.CharField(max_length=200, null=True, blank=True)
     company_size = models.CharField(max_length=200, null=True, blank=True)
@@ -69,18 +56,7 @@ class Brand(models.Model):
     address = models.CharField(max_length=255, null=True, blank=True)
     about = models.TextField(null=True, blank=True)
     website = models.URLField(null=True, blank=True)
-    linkedin_url = models.URLField(null=True, blank=True)
-    linkedin_followers = models.IntegerField(null=True, blank=True)
-    facebook_url = models.URLField(null=True, blank=True)
-    facebook_followers = models.IntegerField(null=True, blank=True)
-    instagram_url = models.URLField(null=True, blank=True)
-    instagram_followers = models.IntegerField(null=True, blank=True)
-    twitter_url = models.URLField(null=True, blank=True)
-    twitter_followers = models.IntegerField(null=True, blank=True)
-    tik_tok_url = models.URLField(null=True, blank=True)
-    tit_tok_followers = models.IntegerField(null=True, blank=True)
-    youtube_url = models.URLField(null=True, blank=True)
-    youtube_subscriber = models.IntegerField(null=True, blank=True)
+
 
     def __str__(self):
         return self.user.username
@@ -94,13 +70,6 @@ class Employee(models.Model):
     country = CountryField(null=True, blank=True)
     address = models.CharField(max_length=255, null=True, blank=True)
     about = models.TextField(null=True, blank=True)
-    website = models.URLField(null=True, blank=True)
-    linkedin_url = models.URLField(null=True, blank=True)
-    facebook_url = models.URLField(null=True, blank=True)
-    instagram_url = models.URLField(null=True, blank=True)
-    twitter_url = models.URLField(null=True, blank=True)
-    tik_tok_url = models.URLField(null=True, blank=True)
-    youtube_url = models.URLField(null=True, blank=True)
 
 
     def __str__(self):
