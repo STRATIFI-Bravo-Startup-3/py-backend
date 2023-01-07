@@ -1,0 +1,29 @@
+TASK 1. Goodness use the user to create a blogging section with employees capable of creating and deleting post, brand and influencers only capable of commenting or deleting comments
+
+
+
+I am writing a multi-user application with the Django framework. My task is to create a blogging section where employees are capable of creating and deleting posts as well;  brand influencers are capable of commenting or deleting comments alone. 
+
+You could create a BlogPost model to store the information about each blog post and a Comment model to store the comments on each post. You could then use Django's Group model to create groups for "employees" and "brand influencers,"  and use Django's Permission model to give the appropriate permissions to each group.
+
+For example, you could create a "create_blog_post" permission and assign it to the "employees" group, and a "delete_blog_post" permission and assign it to the "employees" group as well. You could then create a "create_comment" permission and assign it to the "brand influencers" group, and a "delete_comment" permission and assign it to the "brand influencers" group as well.
+
+You can then use Django's built-in @permission_required decorator to enforce these permissions in your view functions. For example:
+
+from django.contrib.auth.decorators import permission_required
+
+@permission_required('blog.create_blog_post')
+def create_blog_post(request):
+    # code to create a blog post goes here
+
+@permission_required('blog.delete_blog_post')
+def delete_blog_post(request, post_id):
+    # code to delete a blog post goes here
+
+@permission_required('blog.create_comment')
+def create_comment(request, post_id):
+    # code to create a comment goes here
+
+@permission_required('blog.delete_comment')
+def delete_comment(request, comment_id):
+    # code to delete a comment goes here

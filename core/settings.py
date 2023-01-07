@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     #our
     'users',
     'about',
+    'blog',
 ]
 
 MIDDLEWARE = [
