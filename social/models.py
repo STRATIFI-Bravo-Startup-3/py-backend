@@ -4,7 +4,7 @@ from users.models import User
 # Create your models here.
 
 class SocialHandles(models.Model):
-    user=models.OneToOneField(User, on_delete=models.CASCADE)
+    user= models.OneToOneField(User, related_name= 'social', on_delete=models.CASCADE)
     website = models.URLField(null=True, blank=True)
     linkedin_url = models.URLField(null=True, blank=True)
     linkedin_followers = models.IntegerField(null=True, blank=True)
