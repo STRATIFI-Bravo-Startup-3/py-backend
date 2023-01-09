@@ -10,7 +10,7 @@ class PageAdmin(admin.ModelAdmin):
 class AboutAdmin(admin.ModelAdmin):
     readonly_fields = ()
 
-class VisionAdmin(admin.ModelAdmin):
+class VissionAdmin(admin.ModelAdmin):
     readonly_fields = ()
 
 class MissionAdmin(admin.ModelAdmin):
@@ -24,7 +24,7 @@ class ServiceAdmin(admin.ModelAdmin):
 
 admin.site.register(Page, PageAdmin)
 admin.site.register(About, AboutAdmin)
-admin.site.register(Vision, VisionAdmin)
+admin.site.register(Vision, VissionAdmin)
 admin.site.register(Mission, MissionAdmin)
 admin.site.register(Goal, GoalAdmin)
 admin.site.register(Service, ServiceAdmin)
