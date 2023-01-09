@@ -58,7 +58,7 @@ INSTALLED_APPS = [
     #our
     'users',
     'about',
-    'social',
+    'blog',
 ]
 
 MIDDLEWARE = [
