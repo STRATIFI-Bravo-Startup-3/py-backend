@@ -29,6 +29,7 @@ class InfluencerSignupView(generics.GenericAPIView):
     permission_classes=()
     def get_queryset(self):
         return Influencer.objects.all()
+#comment
 
     def post(self, request, *args, **kwargs):
         serializer=self.get_serializer(data=request.data)
