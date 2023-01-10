@@ -10,11 +10,12 @@ from users import permissions
 class BlogPostList(generics.ListCreateAPIView):
     queryset = BlogPost.objects.all()
     serializer_class = serializers.BlogPostSerializer
-    permission_classes = [permissions.IsEmployeeUser]
+    
 
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+        permission_classes = [permissions.IsEmployeeUser]
 
 class BlogPostDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = BlogPost.objects.all()
@@ -25,8 +26,7 @@ class BlogPostDetail(generics.RetrieveUpdateDestroyAPIView):
 class CommentList(generics.ListCreateAPIView):
     queryset = Comments.objects.all()
     serializer_class = serializers.CommentSerializer
-    permission_classes = [permissions.IsBrandUser]
-
+    
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
         
