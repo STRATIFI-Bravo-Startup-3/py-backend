@@ -1,11 +1,4 @@
 from django.urls import re_path, path
-<<<<<<< HEAD
-from .views import (InfluencerSignupView, DemoSignupView,
- BrandSignupView, EmployeeSignupView, BrandListCreateView, BrandDetailView,
- CustomAuthToken, EmployeeListCreateView, EmployeeDetailView, InfluencerListCreateView,
- InfluencerDetailView,LogoutView, BrandOnlyView, InfluencerOnlyView, DeleteAccountView,
- GetUserProfileView, VerifyEmail, UpdateProfilePicView, UpdateProfilePicViewDetailView,) #UpdateUserProfileView,
-=======
 from .views import (InfluencerSignupView,DemoSignupView,
 BrandSignupView,EmployeeSignupView,BrandListCreateView,
 BrandDetailView,CustomAuthToken, EmployeeListCreateView,
@@ -17,7 +10,6 @@ BrandSignupView, EmployeeSignupView,
 CustomAuthToken,LogoutView, BrandOnlyView, 
 InfluencerOnlyView, DeleteAccountView,
 GetUserProfileView, VerifyEmail,) #(UpdateUserProfileView, #UpdateProfilePicView,
->>>>>>> main
  #LoginView
 
 urlpatterns=[
@@ -53,13 +45,10 @@ urlpatterns=[
     re_path(r'all-influencer/', InfluencerListCreateView.as_view(), name='influencer-list'),
     path('influencer/<int:pk>/', InfluencerDetailView.as_view(), name='influencer'),
 
-<<<<<<< HEAD
-=======
 # have to comment out the Url path for the code to debug
 
     #re_path(r'update', UpdateUserProfileView.as_view(), name='update'),
     #re_path(r'profile_pic', UpdateProfilePicView.as_view(), name='profile_pic'),
->>>>>>> main
     re_path(r'influencer/dashboard', InfluencerOnlyView.as_view(), name='influencer-dashboard'),
     re_path(r'brand/dashboard', BrandOnlyView.as_view(), name='brand-dashboard'),
     re_path(r'employee/dashboard', EmployeeSignupView.as_view(), name='employee-dashboard'),
