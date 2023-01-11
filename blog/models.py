@@ -4,12 +4,16 @@ from django.urls import reverse
 from ckeditor_uploader.fields import RichTextUploadingField
 # Create your models here.
 
+# class Categories(models.Model):
+#     Category = models.TextField()
+
 class BlogPost(models.Model):
     owner=models.OneToOneField(User, on_delete=models.CASCADE ,related_name = "posts")
     title = models.CharField(max_length=35, blank=True)
     body = RichTextUploadingField(config_name='awesome_ckeditor') #a library that allows you to format your blog, text and images
     created_at = models.DateTimeField(blank=True,auto_now_add=True)
-    slug = models.SlugField()  #Category
+    slug = models.SlugField(unique=True)  
+    Category = models.TextField()
 
     
     class Meta:
