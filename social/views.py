@@ -1,3 +1,7 @@
-from django.shortcuts import render
+from rest_framework import viewsets
+from .serializers import SocialHandlesSerializer
+from .models import SocialHandles
 
-# Create your views here.
+class SocialHandelsViewSet(viewsets.ModelViewSet):
+    queryset = SocialHandles.objects.all().order_by('?')
+    serializer_class = SocialHandlesSerializer
