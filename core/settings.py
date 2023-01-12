@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'about',
     'blog',
     'wallet',
+    'chats',
 ]
 
 MIDDLEWARE = [
@@ -238,4 +239,20 @@ EMAIL_USE_TLS = True
 #Paystack
 PAYSTACK_SECRET_KEY = config('PAYSTACK_SECRET_KEY')
 PAYSTACK_PUBLIC_KEY = config('PAYSTACK_PUBLIC_KEY')
+
+
+#Chat Function
+ASGI_APPLICATION = "asgi.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            #Windows
+            "hosts": [(config("REDIS_HOST"), config("REDIS_PORT", cast=int))],
+            #"hosts": [(env("REDIS_HOST"), env.int("REDIS_PORT"))],
+            
+        },
+    },
+}
 

@@ -1,5 +1,8 @@
-from django.http import request
+from django.http import request, HttpResponseRedirect
 from rest_framework import generics, permissions, status
+from rest_framework.mixins import RetrieveModelMixin, ListModelMixin, UpdateModelMixin
+from rest_framework.viewsets import GenericViewSet
+
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from .serializers import (DemoSerializer, InfluencerSignupSerializer, 
@@ -15,12 +18,11 @@ from .utils import Util
 from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 import jwt
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.conf import settings
+from rest_framework.decorators import action
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect
 from django.contrib.auth import authenticate, login
-from django.shortcuts import get_object_or_404
 
 
 class InfluencerSignupView(generics.GenericAPIView):
@@ -143,7 +145,8 @@ class CustomAuthToken(ObtainAuthToken):
         return Response({
             'token': token.key,
             'user_id': user.pk,
-            'email': user.email
+            'email': user.email,
+            'username':user.username
         })
  
 
@@ -249,3 +252,17 @@ class UpdateProfilePicView(generics.ListCreateAPIView):
 class UpdateProfilePicViewDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = ProfilePictureUpdateSerializer
+
+
+
+
+class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericViewSet):
+    # other viewset logic
+
+    # Add this
+    @action(detail=False)
+    def all(self, request):
+        serializer = UserSerializer(
+            User.objects.all(), many=True, context={"request": request}
+        )
+        return Response(status=status.HTTP_200_OK, data=serializer.data)

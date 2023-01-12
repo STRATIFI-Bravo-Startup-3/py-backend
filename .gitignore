@@ -1,7 +1,5 @@
 .env
-<<<<<<< HEAD
 .venv
-=======
-venv
->>>>>>> main
 wallet
+chats
+notification
