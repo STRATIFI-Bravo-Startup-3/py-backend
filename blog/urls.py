@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from django.contrib import admin
 from django.urls import path
 
@@ -10,11 +9,4 @@ urlpatterns = [
     path('posts/<slug:slug>/', views.BlogPostDetail.as_view()),
     path('comments/', views.CommentList.as_view()),
     path('comments/<int:pk>/', views.CommentDetail.as_view()),
-=======
-from django.urls import re_path, path
-from .views import *
-
-urlpatterns=[
-    
->>>>>>> main
 ]
