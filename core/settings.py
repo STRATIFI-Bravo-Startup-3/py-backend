@@ -50,6 +50,7 @@ INSTALLED_APPS = [
 
     #third party
     'rest_framework',
+    'django_rest_passwordreset',
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
     'corsheaders',
@@ -59,7 +60,7 @@ INSTALLED_APPS = [
     'users',
     'about',
     'blog',
-    'wallet',
+    #'wallet',
 ]
 
 MIDDLEWARE = [
@@ -207,6 +208,6 @@ EMAIL_USE_TLS = True
 
 #Wallet
 #Paystack
-PAYSTACK_SECRET_KEY = config('PAYSTACK_SECRET_KEY')
-PAYSTACK_PUBLIC_KEY = config('PAYSTACK_PUBLIC_KEY')
+#PAYSTACK_SECRET_KEY = config('PAYSTACK_SECRET_KEY')
+#PAYSTACK_PUBLIC_KEY = config('PAYSTACK_PUBLIC_KEY')
 

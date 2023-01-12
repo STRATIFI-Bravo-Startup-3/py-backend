@@ -9,7 +9,7 @@ UpdateProfilePicViewDetailView,#UpdateUserProfileView,
 BrandSignupView, EmployeeSignupView,
 CustomAuthToken,LogoutView, BrandOnlyView, 
 InfluencerOnlyView, DeleteAccountView,
-GetUserProfileView, VerifyEmail,) #(UpdateUserProfileView, #UpdateProfilePicView,
+GetUserProfileView, VerifyEmail, ChangePasswordView) #(UpdateUserProfileView, #UpdateProfilePicView,
  #LoginView
 
 urlpatterns=[
@@ -21,6 +21,7 @@ urlpatterns=[
     re_path(r'signup/verify-email', VerifyEmail.as_view(),name='verify-email'),
     
     re_path(r'login',CustomAuthToken.as_view()),
+    path('change-password/', ChangePasswordView.as_view(), name='change-password'),
 
     #re_path(r'login', LoginView.as_view()),
 
@@ -30,7 +31,7 @@ urlpatterns=[
     re_path(r'delete', DeleteAccountView.as_view(), name='delete-account'),
 
     re_path(r'user', GetUserProfileView.as_view()),
-
+    
     #re_path(r'update', UpdateUserProfileView.as_view(), name='update'),
     
     re_path(r'profile_pic', UpdateProfilePicView.as_view(), name='profile_pic'),

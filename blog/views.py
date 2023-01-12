@@ -1,4 +1,4 @@
-
+"""
 from django.shortcuts import render
 from blog.models import BlogPost,Comments
 from rest_framework import generics
@@ -36,4 +36,4 @@ class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = serializers.CommentSerializer
     permission_classes = [permissions.IsBrandUser]
                           
-    
+"""
