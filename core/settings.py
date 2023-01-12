@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'djoser',
     'ckeditor',
     'ckeditor_uploader',
+    'channels',
 
     #our
     'users',
