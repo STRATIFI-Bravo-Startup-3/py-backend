@@ -6,7 +6,7 @@ class BlogPostAdmin(admin.ModelAdmin):
     model = BlogPost
     
     list_display = ("title", "body",)
-    #prepopulated_fields = {"slug": ("title",)}
+    prepopulated_fields = {"slug": ("title",)}
     
 
 admin.site.register(BlogPost, BlogPostAdmin)

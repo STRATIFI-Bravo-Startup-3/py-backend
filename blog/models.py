@@ -13,7 +13,7 @@ class BlogPost(models.Model):
     title = models.CharField(max_length=35, blank=True)
     body = RichTextField(config_name='default') #a library that allows you to format your blog, text and images
     created_at = models.DateTimeField(blank=True,auto_now_add=True)
-    #slug = models.SlugField(unique=True)  
+    slug = models.SlugField(unique=True, blank=True)  
     Category = models.TextField()
 
     
