@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
+from django.contrib.auth import password_validation
+from django.utils.translation import gettext_lazy as _
 from django_countries.serializers import CountryFieldMixin
 
 from .models import User, Influencer, Brand, Employee
@@ -168,8 +170,15 @@ class ProfilePictureUpdateSerializer(serializers.ModelSerializer):
         model = User
         fields = ['profile_pic']
 
-class UpdateUserProfileView(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = []
         
+from rest_framework import serializers
+from django.contrib.auth.models import User
+
+class ChangePasswordSerializer(serializers.Serializer):
+    model = User
+
+    """
+    Serializer for password change endpoint.
+    """
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
