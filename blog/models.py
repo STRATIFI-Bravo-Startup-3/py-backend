@@ -1,7 +1,8 @@
 from django.db import models
 from users.models import User
 from django.urls import reverse
-from ckeditor_uploader.fields import RichTextUploadingField
+from ckeditor.fields import RichTextField
+from django.conf import settings
 # Create your models here.
 
 # class Categories(models.Model):
@@ -10,9 +11,9 @@ from ckeditor_uploader.fields import RichTextUploadingField
 class BlogPost(models.Model):
     owner=models.OneToOneField(User, on_delete=models.CASCADE ,related_name = "posts")
     title = models.CharField(max_length=35, blank=True)
-    body = RichTextUploadingField(config_name='awesome_ckeditor') #a library that allows you to format your blog, text and images
+    body = RichTextField(config_name='default') #a library that allows you to format your blog, text and images
     created_at = models.DateTimeField(blank=True,auto_now_add=True)
-    slug = models.SlugField(unique=True)  
+    #slug = models.SlugField(unique=True)  
     Category = models.TextField()
 
     
