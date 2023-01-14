@@ -269,6 +269,7 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
             User.objects.all(), many=True, context={"request": request}
         )
         return Response(status=status.HTTP_200_OK, data=serializer.data)
+        
 class ChangePasswordView(generics.UpdateAPIView):
     """
     An endpoint for changing password.
