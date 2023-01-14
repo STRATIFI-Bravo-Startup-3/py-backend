@@ -5,11 +5,16 @@ from ckeditor.fields import RichTextField
 from django.conf import settings
 # Create your models here.
 
-# class Categories(models.Model):
-#     Category = models.TextField()
+class Category(models.Model):
+    name = models.CharField(max_length=100, blank=False, default='')
+    owner = models.ForeignKey(User, related_name='categories', on_delete=models.CASCADE)
+    posts = models.ManyToManyField('BlogPost', related_name='categories', blank=True)
+
+    class Meta:
+        verbose_name_plural = 'categories'
 
 class BlogPost(models.Model):
-    owner=models.OneToOneField(User, on_delete=models.CASCADE ,related_name = "posts")
+    owner=models.ForeignKey(User, on_delete=models.CASCADE ,related_name = "posts")
     title = models.CharField(max_length=35, blank=True)
     body = RichTextField(config_name='default') #a library that allows you to format your blog, text and images
     created_at = models.DateTimeField(blank=True,auto_now_add=True)
@@ -27,7 +32,7 @@ class BlogPost(models.Model):
         return reverse('blog-post-detail', kwargs = {'slug': self.slug})
 
 class Comments(models.Model):
-    owner=models.OneToOneField(User, on_delete=models.CASCADE, related_name = "comments")
+    owner=models.ForeignKey(User, on_delete=models.CASCADE, related_name = "comments")
     post = models.ForeignKey(BlogPost, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     

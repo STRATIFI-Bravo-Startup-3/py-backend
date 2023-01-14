@@ -248,13 +248,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #rest authentication classes
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        
+
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
+    
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+        'rest_framework.permissions.DjangoModelPermissions',
         'rest_framework.permissions.IsAuthenticated',
     ],
 }
@@ -289,3 +292,9 @@ SITE_NAME = "Stratifi_ng"
 
 EMAIL_PORT = 587 
 EMAIL_USE_TLS = True
+
+#Wallet
+#Paystack
+# PAYSTACK_SECRET_KEY = config('PAYSTACK_SECRET_KEY')
+# PAYSTACK_PUBLIC_KEY = config('PAYSTACK_PUBLIC_KEY')
+

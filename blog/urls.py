@@ -1,14 +1,19 @@
 from django.contrib import admin
-from django.urls import path,include
+from rest_framework.urlpatterns import format_suffix_patterns
+from django.urls import re_path,include
+from .views import (BlogPostList,BlogPostDetail,
+CommentDetail,CommentList,CategoryDetail,CategoryList)
 
-from . import views
 
 urlpatterns = [
     # code omitted for brevity
-    path('posts/', views.BlogPostList.as_view(), ),
-    path('posts/<slug:slug>/', views.BlogPostDetail.as_view()),
-    path('comments/', views.CommentList.as_view()),
-    path('comments/<int:pk>/', views.CommentDetail.as_view()),
-    path('ckeditor/', include('ckeditor_uploader.urls')),
-
+    re_path('ckeditor/', include('ckeditor_uploader.urls')),
+    re_path('posts/', BlogPostList.as_view(), ),
+    re_path('posts/<slug:slug>/', BlogPostDetail.as_view()),
+    re_path('comments/', CommentList.as_view()),
+    re_path('comments/<int:pk>/',CommentDetail.as_view()),
+    re_path('categories/',CategoryList.as_view()),
+    re_path('categories/<int:pk>/',CategoryDetail.as_view()),
 ]
+
+urlpatterns = format_suffix_patterns(urlpatterns)

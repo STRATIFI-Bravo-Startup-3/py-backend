@@ -158,7 +158,7 @@ class LogoutView(APIView):
 
 
 class BrandOnlyView(generics.RetrieveAPIView):
-    permission_classes=[permissions.IsAuthenticated&IsBrandUser]
+    permission_classes=[permissions.IsAuthenticated,IsBrandUser]
     serializer_class=UserSerializer
 
     def get_object(self):
@@ -166,7 +166,7 @@ class BrandOnlyView(generics.RetrieveAPIView):
 
 
 class InfluencerOnlyView(generics.RetrieveAPIView):
-    permission_classes=[permissions.IsAuthenticated&IsInfluencerUser]
+    permission_classes=[permissions.IsAuthenticated,IsInfluencerUser]
     serializer_class=UserSerializer
 
     def get_object(self):
@@ -174,7 +174,8 @@ class InfluencerOnlyView(generics.RetrieveAPIView):
         
 
 class EmployeeOnlyView(generics.RetrieveAPIView):
-    permission_classes=[permissions.IsAuthenticated&IsEmployeeUser]
+    
+    permission_classes=[permissions.IsAuthenticated,IsEmployeeUser]
     serializer_class=UserSerializer
 
     def get_object(self):
