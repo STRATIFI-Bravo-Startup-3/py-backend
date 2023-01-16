@@ -63,8 +63,8 @@ INSTALLED_APPS = [
     'users',
     'about',
     'blog',
-    'wallet',
-    'chats',
+    # 'wallet',
+    # 'chats',
 ]
 
 MIDDLEWARE = [
@@ -245,15 +245,15 @@ EMAIL_USE_TLS = True
 #Chat Function
 ASGI_APPLICATION = "asgi.application"
 
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            #Windows
-            "hosts": [(config("REDIS_HOST"), config("REDIS_PORT", cast=int))],
-            #"hosts": [(env("REDIS_HOST"), env.int("REDIS_PORT"))],
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels_redis.core.RedisChannelLayer",
+#         "CONFIG": {
+#             #Windows
+#             "hosts": [(config("REDIS_HOST"), config("REDIS_PORT", cast=int))],
+#             #"hosts": [(env("REDIS_HOST"), env.int("REDIS_PORT"))],
             
-        },
-    },
-}
+#         },
+#     },
+# }
 

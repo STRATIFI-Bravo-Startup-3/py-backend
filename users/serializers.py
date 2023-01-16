@@ -3,7 +3,6 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth import password_validation
 from django.utils.translation import gettext_lazy as _
 from django_countries.serializers import CountryFieldMixin
-
 from .models import User, Influencer, Brand, Employee
 
 from django.contrib.auth import authenticate, get_user_model
@@ -171,8 +170,7 @@ class ProfilePictureUpdateSerializer(serializers.ModelSerializer):
         fields = ['profile_pic']
 
         
-from rest_framework import serializers
-from django.contrib.auth.models import User
+
 
 class ChangePasswordSerializer(serializers.Serializer):
     model = User
