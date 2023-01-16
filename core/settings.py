@@ -50,21 +50,18 @@ INSTALLED_APPS = [
 
     #third party
     'rest_framework',
-    'django_rest_passwordreset',
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
     'corsheaders',
     'djoser',
     'ckeditor',
     'ckeditor_uploader',
-    'channels',
 
     #our
     'users',
     'about',
     'blog',
-    'wallet',
-    'chats',
+    #'wallet',
 ]
 
 MIDDLEWARE = [
@@ -106,7 +103,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -158,7 +155,10 @@ STATIC_URL = '/static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+#CKEDITOR_UPLOAD_PATH = 'ck-uploads/'
 CKEDITOR_UPLOAD_PATH = 'uploads/'
+
+CKEDITOR_ALLOW_NONIMAGE_FILES = False
 
 CKEDITOR_BASEPATH = "/my_static/ckeditor/ckeditor/"
 
@@ -170,22 +170,76 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-CKEDITOR_CONFIGS = {
-    'awesome_ckeditor': {
-        'toolbar': 'Basic',
-    },
-}
+
 
 AWS_QUERYSTRING_AUTH = False
 
 CKEDITOR_CONFIGS = {
-    "default": {
-        "removePlugins": "stylesheetparser",
+    'default': {
+        'skin': 'moono',
+        # 'skin': 'office2013',
+        'toolbar_Basic': [
+            ['Source', '-', 'Bold', 'Italic']
+        ],
+        'toolbar_YourCustomToolbarConfig': [
+            {'name': 'document', 'items': ['Source', '-', 'Save', 'NewPage', 'Preview', 'Print', '-', 'Templates']},
+            {'name': 'clipboard', 'items': ['Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo']},
+            {'name': 'editing', 'items': ['Find', 'Replace', '-', 'SelectAll']},
+            {'name': 'forms',
+             'items': ['Form', 'Checkbox', 'Radio', 'TextField', 'Textarea', 'Select', 'Button', 'ImageButton',
+                       'HiddenField']},
+            '/',
+            {'name': 'basicstyles',
+             'items': ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat']},
+            {'name': 'paragraph',
+             'items': ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-',
+                       'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'BidiLtr', 'BidiRtl',
+                       'Language']},
+            {'name': 'links', 'items': ['Link', 'Unlink', 'Anchor']},
+            {'name': 'insert',
+             'items': ['Image', 'Flash', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'PageBreak', 'Iframe']},
+            '/',
+            {'name': 'styles', 'items': ['Styles', 'Format', 'Font', 'FontSize']},
+            {'name': 'colors', 'items': ['TextColor', 'BGColor']},
+            {'name': 'tools', 'items': ['Maximize', 'ShowBlocks']},
+            {'name': 'about', 'items': ['About']},
+            '/',  # put this to force next toolbar on new line
+            {'name': 'yourcustomtools', 'items': [
+                # put the name of your editor.ui.addButton here
+                'Preview',
+                'Maximize',
+
+            ]},
+        ],
+        'toolbar': 'YourCustomToolbarConfig',  # put selected toolbar config here
+        # 'toolbarGroups': [{ 'name': 'document', 'groups': [ 'mode', 'document', 'doctools' ] }],
+        # 'height': 291,
+        # 'width': '100%',
+        # 'filebrowserWindowHeight': 725,
+        # 'filebrowserWindowWidth': 940,
+        # 'toolbarCanCollapse': True,
+        # 'mathJaxLib': '//cdn.mathjax.org/mathjax/2.2-latest/MathJax.js?config=TeX-AMS_HTML',
+        'tabSpaces': 4,
+        'extraPlugins': ','.join([
+            'uploadimage', # the upload image feature
+            # your extra plugins here
+            'div',
+            'autolink',
+            'autoembed',
+            'embedsemantic',
+            'autogrow',
+            # 'devtools',
+            'widget',
+            'lineutils',
+            'clipboard',
+            'dialog',
+            'dialogui',
+            'elementspath'
+        ]),
     }
 }
 
 
-CKEDITOR_ALLOW_NONIMAGE_FILES = False
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
@@ -194,13 +248,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #rest authentication classes
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        
+
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
+    
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+        'rest_framework.permissions.DjangoModelPermissions',
         'rest_framework.permissions.IsAuthenticated',
     ],
 }
@@ -238,22 +295,6 @@ EMAIL_USE_TLS = True
 
 #Wallet
 #Paystack
-#PAYSTACK_SECRET_KEY = config('PAYSTACK_SECRET_KEY')
-#PAYSTACK_PUBLIC_KEY = config('PAYSTACK_PUBLIC_KEY')
-
-
-#Chat Function
-ASGI_APPLICATION = "asgi.application"
-
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            #Windows
-            "hosts": [(config("REDIS_HOST"), config("REDIS_PORT", cast=int))],
-            #"hosts": [(env("REDIS_HOST"), env.int("REDIS_PORT"))],
-            
-        },
-    },
-}
+# PAYSTACK_SECRET_KEY = config('PAYSTACK_SECRET_KEY')
+# PAYSTACK_PUBLIC_KEY = config('PAYSTACK_PUBLIC_KEY')
 

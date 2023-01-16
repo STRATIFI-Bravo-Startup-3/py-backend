@@ -1,6 +1,16 @@
 from rest_framework import serializers
-from .models import BlogPost,Comments
+from .models import BlogPost,Comments,Category
 from users.models import User
+
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
+    posts = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'owner', 'posts']
 
 class BlogPostSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
