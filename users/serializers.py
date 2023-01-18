@@ -171,8 +171,6 @@ class ProfilePictureUpdateSerializer(serializers.ModelSerializer):
         fields = ['profile_pic']
 
         
-from rest_framework import serializers
-from django.contrib.auth.models import User
 
 class ChangePasswordSerializer(serializers.Serializer):
     model = User

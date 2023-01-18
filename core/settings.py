@@ -50,8 +50,8 @@ INSTALLED_APPS = [
 
     #third party
     'rest_framework',
-    'django_rest_passwordreset',
     'rest_framework.authtoken',
+    'django_rest_passwordreset',
     'rest_framework_simplejwt',
     'corsheaders',
     'djoser',
@@ -59,7 +59,6 @@ INSTALLED_APPS = [
     #our
     'users',
     'about',
-    'blog',
     #'wallet',
 ]
 

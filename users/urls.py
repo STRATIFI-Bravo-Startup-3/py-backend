@@ -46,7 +46,7 @@ urlpatterns=[
     re_path(r'all-influencer/', InfluencerListCreateView.as_view(), name='influencer-list'),
     path('influencer/<int:pk>/', InfluencerDetailView.as_view(), name='influencer'),
 
-# have to comment out the Url path for the code to debug
+    # have to comment out the Url path for the code to debug
 
     #re_path(r'update', UpdateUserProfileView.as_view(), name='update'),
     #re_path(r'profile_pic', UpdateProfilePicView.as_view(), name='profile_pic'),
