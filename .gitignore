@@ -1,7 +1,6 @@
 .env
-.venv
-db.sqlite3
 venv
-chat
+db.sqlite3
+chats
 notification
 wallet
