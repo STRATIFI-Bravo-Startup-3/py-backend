@@ -22,7 +22,6 @@ from rest_framework.authtoken.views import obtain_auth_token
 urlpatterns = [
     re_path('admin/', admin.site.urls),
     re_path('api-auth/', include('rest_framework.urls')),
-    re_path('api/password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
     re_path('', include("users.urls")),
     re_path('', include("about.urls")),
     re_path('', include("blog.urls")),
