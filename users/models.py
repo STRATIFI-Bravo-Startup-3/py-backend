@@ -31,6 +31,12 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
         Token.objects.create(user=instance)
 
+NICHE_CHOICES =(
+    ('Entertainment', 'Entertainment'),
+    ('Hospitalities', 'Hospitalities'),
+    ('Football', 'Football'),
+)
+
 
 GENDER_CHOICES = (
     ('M', 'Male'),
@@ -59,6 +65,13 @@ class Language(models.Model):
  
     def __str__(self):
         return self.language
+        
+
+class Niche(models.Model):
+     niche = models.CharField(max_length=200, unique=True, choices=NICHE_CHOICES, null=True, blank=True)
+
+     def __str__(self):
+        return self.niche
 
 
 class Influencer(models.Model):
@@ -68,7 +81,7 @@ class Influencer(models.Model):
     full_name = models.CharField(max_length=200, null=True, blank=True)
     address = models.CharField(max_length=255, null=True, blank=True)
     phone = models.CharField(max_length=200, null=True, blank=True)
-    niche = models.CharField(max_length=200, null=True, blank=True)
+    niches = models.ManyToManyField(Niche, max_length=200, blank=True)
     portfolio = models.TextField(null=True, blank=True)
     country = CountryField(null=True, blank=True)
     about = models.TextField(null=True, blank=True)
@@ -85,7 +98,7 @@ class Brand(models.Model):
     company_size = models.CharField(max_length=200, null=True, blank=True)
     languages = models.ManyToManyField(Language, max_length=20,blank=True)
     address = models.CharField(max_length=255, null=True, blank=True)
-    niche = models.CharField(max_length=200, null=True, blank=True)
+    niches = models.ManyToManyField(Niche, max_length=200, blank=True)
     phone = models.CharField(max_length=200, null=True, blank=True)
     country = CountryField(null=True, blank=True)
     about = models.TextField(null=True, blank=True)
