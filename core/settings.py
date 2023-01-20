@@ -57,13 +57,13 @@ INSTALLED_APPS = [
     'ckeditor',
     'ckeditor_uploader',
     'django_rest_passwordreset',
-    'password_reset',
+   
 
     #our
     'users',
     'about',
     'blog',
-    'wallet',
+    #'wallet',
     'chats',
 ]
 
