@@ -4,7 +4,6 @@ from django.contrib.auth import password_validation
 from django.utils.translation import gettext_lazy as _
 from django_countries.serializers import CountryFieldMixin
 from .models import User, Influencer, Brand, Employee
-
 from django.contrib.auth import authenticate, get_user_model
 from djoser.conf import settings
 from djoser.serializers import TokenCreateSerializer

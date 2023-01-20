@@ -39,60 +39,63 @@ GENDER_CHOICES = (
     )
 
 LANGUAGES = (
-    ('en', 'English'),
-    ('pt', 'Portuguese'),
-    ('sp', 'Spanish'),
-    ('Hi', 'Hindi'),
-    ('Ru', 'Russian'),
-    ('Ja', 'Japanese'),
-    ('Ar', 'Arabic'),
-    ('Fr', 'French'),
-    ('It', 'Italian'),
-    ('Tu', 'Turkish'),
-    ('Hu', 'Hausa'),
-    ('ig', 'Igbo'),
-    ('Yo', 'Yoruba'),
+    ('English', 'English'),
+    ('Portuguese', 'Portuguese'),
+    ('Spanish', 'Spanish'),
+    ('Hindi', 'Hindi'),
+    ('Russian', 'Russian'),
+    ('Japanese', 'Japanese'),
+    ('Arabic', 'Arabic'),
+    ('French', 'French'),
+    ('Italian', 'Italian'),
+    ('Turkish', 'Turkish'),
+    ('Hausa', 'Hausa'),
+    ('Igbo', 'Igbo'),
+    ('Yoruba', 'Yoruba'),
 )
-    
+
+class Language(models.Model):
+    language = models.CharField(max_length=200, unique=True, choices=LANGUAGES, null=True, blank=True)
+ 
+    def __str__(self):
+        return self.language
+
 
 class Influencer(models.Model):
     user=models.OneToOneField(User, related_name="influencer", on_delete=models.CASCADE)
-    gender = models.CharField(max_length=5, choices=GENDER_CHOICES, blank=True, null=True)
+    gender = models.CharField(max_length=20, choices=GENDER_CHOICES, blank=True, null=True)
+    languages = models.ManyToManyField(Language, max_length=20,blank=True)
     full_name = models.CharField(max_length=200, null=True, blank=True)
     address = models.CharField(max_length=255, null=True, blank=True)
     phone = models.CharField(max_length=200, null=True, blank=True)
     niche = models.CharField(max_length=200, null=True, blank=True)
-    language = models.CharField(max_length=2, choices=LANGUAGES, blank=True, null=True)
     portfolio = models.TextField(null=True, blank=True)
     country = CountryField(null=True, blank=True)
     about = models.TextField(null=True, blank=True)
-    
-    
 
+    
     def __str__(self):
         return self.user.username
-
-
-
+    
+    
 class Brand(models.Model):
     user=models.OneToOneField(User, related_name="employer", on_delete=models.CASCADE)
     company_name=models.CharField(max_length=200, null=True, blank=True)
     contact_person = models.CharField(max_length=200, null=True, blank=True)
     company_size = models.CharField(max_length=200, null=True, blank=True)
+    languages = models.ManyToManyField(Language, max_length=20,blank=True)
     address = models.CharField(max_length=255, null=True, blank=True)
     niche = models.CharField(max_length=200, null=True, blank=True)
     phone = models.CharField(max_length=200, null=True, blank=True)
-    language = models.CharField(max_length=2, choices=LANGUAGES, blank=True, null=True)
     country = CountryField(null=True, blank=True)
     about = models.TextField(null=True, blank=True)
     website = models.URLField(null=True, blank=True)
     budget = models.IntegerField(blank=True, null=True)
 
-
     def __str__(self):
         return self.user.username
 
-
+    
 class Employee(models.Model):
     user=models.OneToOneField(User, related_name="staff", on_delete=models.CASCADE)
     full_name = models.CharField(max_length=200, null=True, blank=True)
@@ -105,3 +108,5 @@ class Employee(models.Model):
 
     def __str__(self):
         return self.user.username
+
+    
