@@ -9,8 +9,13 @@ UpdateProfilePicViewDetailView,#UpdateUserProfileView,
 BrandSignupView, EmployeeSignupView,
 CustomAuthToken,LogoutView, BrandOnlyView, 
 InfluencerOnlyView, DeleteAccountView,
-GetUserProfileView, VerifyEmail, ChangePasswordView) #(UpdateUserProfileView, #UpdateProfilePicView,
+GetUserProfileView, VerifyEmail, ChangePasswordView,
+
+user_detail_view, user_redirect_view, user_update_view,
+) #(UpdateUserProfileView, #UpdateProfilePicView,
  #LoginView
+
+app_name = "users"
 
 urlpatterns=[
     re_path(r'signup/influencer', InfluencerSignupView.as_view()),
@@ -53,6 +58,13 @@ urlpatterns=[
     re_path(r'influencer/dashboard', InfluencerOnlyView.as_view(), name='influencer-dashboard'),
     re_path(r'brand/dashboard', BrandOnlyView.as_view(), name='brand-dashboard'),
     re_path(r'employee/dashboard', EmployeeSignupView.as_view(), name='employee-dashboard'),
+
+
+    #check this out
+    re_path(r"~redirect/", view=user_redirect_view, name="redirect"),
+    re_path(r"~update/", view=user_update_view, name="update"),
+    re_path(r"<str:username>/", view=user_detail_view, name="detail"),
+
 ]
 
 

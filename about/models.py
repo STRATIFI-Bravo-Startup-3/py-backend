@@ -48,6 +48,7 @@ class Service(models.Model):
     def __str__(self):
         return self.title
 
+'''
 class Page(models.Model): 
     title = models.CharField(max_length=120) 
     slug = models.SlugField()
@@ -66,5 +67,5 @@ class Page(models.Model):
     def save(self, *args, **kwargs):  # new
         if not self.slug:
             self.slug = slugify(self.title)
-        return super().save(*args, **kwargs)
+        return super().save(*args, **kwargs)'''
     

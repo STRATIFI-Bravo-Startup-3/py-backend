@@ -23,6 +23,13 @@ class User(AbstractUser):
 
     #profile_pic = models.ImageField(null=True, blank=True, upload_to="static/profile/images", default="images/user-default.png",)
 
+    def get_absolute_url(self):
+        """Get url for user's detail view.
+        Returns:
+            str: URL for user detail.
+        """
+        return reverse("users:detail", kwargs={"username": self.username})
+
     def __str__(self) :
         return self.username
         
@@ -36,6 +43,17 @@ GENDER_CHOICES = (
     ('M', 'Male'),
     ('F', 'Female'),
     ('CNTS', 'Choose Not To Say'),
+    )
+
+
+NICHES = (
+    ('Sc', 'Science'),
+    ('Sp', 'Sport'),
+    ('Et', 'Entertainment'),
+    ('Tc', 'Tech'),
+    ('Ht', 'Health'),
+    ('Bs', 'Business'),
+    ('Ot', 'Others'),
     )
 
 LANGUAGES = (
@@ -52,6 +70,8 @@ LANGUAGES = (
     ('Hu', 'Hausa'),
     ('ig', 'Igbo'),
     ('Yo', 'Yoruba'),
+    ('Pg', 'Pidgin'),
+    ('Ur', 'Urhobo'),
 )
     
 
@@ -61,8 +81,8 @@ class Influencer(models.Model):
     full_name = models.CharField(max_length=200, null=True, blank=True)
     address = models.CharField(max_length=255, null=True, blank=True)
     phone = models.CharField(max_length=200, null=True, blank=True)
-    niche = models.CharField(max_length=200, null=True, blank=True)
-    language = models.CharField(max_length=2, choices=LANGUAGES, blank=True, null=True)
+    niche = models.CharField(max_length=200, choices=NICHES, verbose_name="Please select your niche", null=True, blank=True)
+    language = models.CharField(max_length=2, choices=LANGUAGES, blank=True, verbose_name="Please select your languages", null=True)
     portfolio = models.TextField(null=True, blank=True)
     country = CountryField(null=True, blank=True)
     about = models.TextField(null=True, blank=True)
@@ -80,9 +100,9 @@ class Brand(models.Model):
     contact_person = models.CharField(max_length=200, null=True, blank=True)
     company_size = models.CharField(max_length=200, null=True, blank=True)
     address = models.CharField(max_length=255, null=True, blank=True)
-    niche = models.CharField(max_length=200, null=True, blank=True)
+    niche = models.CharField(max_length=200, choices=NICHES, verbose_name="Please select your niche", null=True, blank=True)
     phone = models.CharField(max_length=200, null=True, blank=True)
-    language = models.CharField(max_length=2, choices=LANGUAGES, blank=True, null=True)
+    language = models.CharField(max_length=2, choices=LANGUAGES, verbose_name="Please select your languages", blank=True, null=True)
     country = CountryField(null=True, blank=True)
     about = models.TextField(null=True, blank=True)
     website = models.URLField(null=True, blank=True)

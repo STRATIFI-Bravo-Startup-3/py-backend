@@ -1,7 +1,7 @@
 from rest_framework.response import Response 
 from rest_framework.views import APIView 
-from .models import Page, About, Vision, Mission, Goal, Service 
-from .serializers import PageSerializer, AboutSerializer, VisionSerializer, MissionSerializer, GoalSerializer, ServiceSerializer
+from .models import About, Vision, Mission, Goal, Service 
+from .serializers import AboutSerializer, VisionSerializer, MissionSerializer, GoalSerializer, ServiceSerializer
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
 
@@ -45,8 +45,8 @@ def about(request):
 
 @ api_view(['GET'])
 @permission_classes((permissions.AllowAny,))
-def vission(request):
-    vissions = Vision.objects.all()
+def vision(request):
+    visions = Vision.objects.all()
     serializer = VisionSerializer(vissions, many=True)
     return Response(serializer.data)
 
@@ -83,6 +83,7 @@ def service(request):
     return HttpResponse("the Our Service page goes here")
     #return render(request, "", )
 
+'''
 class PageView(APIView): 
     def get(self, request):  
         pages = Page.objects.all() 
@@ -107,5 +108,5 @@ class PageView(APIView):
     def delete(self, request, pk): 
         page = get_object_or_404(Page.objects.all(), pk=pk) 
         page.delete() 
-        return Response ({"message":"Page with id'{}' has been deleted.".format(pk)})
+        return Response ({"message":"Page with id'{}' has been deleted.".format(pk)})'''
 
