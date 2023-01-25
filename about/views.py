@@ -4,9 +4,9 @@ from .models import Page, About, Vision, Mission, Goal, Service
 from .serializers import PageSerializer, AboutSerializer, VisionSerializer, MissionSerializer, GoalSerializer, ServiceSerializer
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
-
+from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
-User = get_user_model()
+from users.models import User
 
 # My own imports for the rest_framework api_view
 from django.http import JsonResponse

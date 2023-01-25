@@ -13,6 +13,6 @@ urlpatterns = [
     path('goal', views.goal, name='goal'),
     path('service', views.service, name='service'),
     #path('', PageView.as_view()),
-    path('<slug:slug>', PageView.as_view(), name="page_detail"),
+    path('<int:pk>', PageView.as_view(), name="page_detail"),
 ]
 
