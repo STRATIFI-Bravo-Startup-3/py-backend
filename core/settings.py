@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
 
     #third party
     'rest_framework',
@@ -57,6 +58,8 @@ INSTALLED_APPS = [
     'ckeditor',
     'ckeditor_uploader',
     'django_rest_passwordreset',
+    'django_filters',
+    
    
 
     #our
@@ -158,12 +161,6 @@ STATIC_URL = '/static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-#CKEDITOR_UPLOAD_PATH = 'ck-uploads/'
-CKEDITOR_UPLOAD_PATH = 'uploads/'
-
-CKEDITOR_ALLOW_NONIMAGE_FILES = False
-
-CKEDITOR_BASEPATH = "/my_static/ckeditor/ckeditor/"
 
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
@@ -176,6 +173,16 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 AWS_QUERYSTRING_AUTH = False
+
+
+CKEDITOR_IMAGE_BACKEND = "pillow"
+CKEDITOR_FORCE_JPEG_COMPRESSION = True
+CKEDITOR_UPLOAD_PATH = 'blogsupport/'
+CKEDITOR_ALLOW_NONIMAGE_FILES = True
+CKEDITOR_JQUERY_URL = '//ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js'
+
+CKEDITOR_FILENAME_GENERATOR = 'utils.get_filename'
+
 
 CKEDITOR_CONFIGS = {
     'default': {
@@ -237,10 +244,17 @@ CKEDITOR_CONFIGS = {
             'clipboard',
             'dialog',
             'dialogui',
-            'elementspath'
+            'elementspath',
+            'specialchar',
+            'table',
+            'language',
+            
+
         ]),
     }
 }
+
+
 
 
 # Default primary key field type
@@ -251,8 +265,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #rest authentication classes
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        
-
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
@@ -263,6 +275,10 @@ REST_FRAMEWORK = {
         #'rest_framework.permissions.DjangoModelPermissions',
         'rest_framework.permissions.IsAuthenticated',
     ],
+     'DEFAULT_FILTER_BACKENDS': (
+        'rest_framework.filters.SearchFilter',
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
 }
 
 AUTH_USER_MODEL="users.User"
