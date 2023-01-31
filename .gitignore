@@ -5,3 +5,5 @@ chats
 notification
 wallet
 .venv
+migrations
+__pycache__

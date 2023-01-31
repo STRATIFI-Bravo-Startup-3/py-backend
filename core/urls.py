@@ -26,4 +26,6 @@ urlpatterns = [
     re_path('', include("users.urls")),
     re_path('', include("about.urls")),
     re_path('', include("blog.urls")),
+    re_path('social-auth/',
+include('social_django.urls', namespace='social')),
 ]
