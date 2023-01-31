@@ -1,7 +1,8 @@
 from rest_framework import serializers
+from django.contrib.auth import get_user_model
 from .models import Message, Conversation
 from users.serializers import UserSerializer
-from django.contrib.auth import get_user_model
+
 
 User = get_user_model()
 
@@ -31,6 +32,7 @@ class MessageSerializer(serializers.ModelSerializer):
 
     def get_to_user(self, obj):
         return UserSerializer(obj.to_user).data
+
 
 class ConversationSerializer(serializers.ModelSerializer):
     other_user = serializers.SerializerMethodField()

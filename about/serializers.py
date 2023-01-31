@@ -1,5 +1,5 @@
 from rest_framework import serializers 
-from .models import Page, About, Vision, Mission, Goal, Service
+from .models import About, Vision, Mission, Goal, Service
 
 
 
@@ -34,7 +34,7 @@ class ServiceSerializer(serializers.ModelSerializer):
         model = Service
         fields = '__all__'
 
-class PageSerializer(serializers.Serializer): 
+'''class PageSerializer(serializers.Serializer): 
 
     class Meta:
         model = Page
@@ -54,5 +54,5 @@ class PageSerializer(serializers.Serializer):
         instance.body = validated_data.get('body', instance.body)
 
         instance.save()
-        return instance
+        return instance'''
     

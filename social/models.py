@@ -18,3 +18,6 @@ class SocialHandles(models.Model):
     tit_tok_followers = models.IntegerField(null=True, blank=True)
     youtube_url = models.URLField(null=True, blank=True)
     youtube_subscriber = models.IntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return self.user.username
