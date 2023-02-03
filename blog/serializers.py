@@ -72,7 +72,7 @@ class BlogPostListSerializer(ModelSerializer):
             'user',
             'title',
             'content',
-            'created'
+            'created_at'
         ]
 
 #Comment Serializer

@@ -244,7 +244,7 @@ SITE_NAME = "Stratifi_ng"
 #EMAIL_HOST = config('EMAIL_HOST')
 #EMAIL_HOST_USER = config('EMAIL_HOST_USER') 
 #EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
-#EMAIL_HOST_USERNAME = config('EMAIL_HOST_USERNAME')
+#EMAIL_HOST_USERNA  ME = config('EMAIL_HOST_USERNAME')
 
 #25, 587	(for unencrypted/TLS connections)
 #465	(for SSL connections)
