@@ -64,3 +64,17 @@ class IsBrandUserOrReadonly(BasePermission):
         return bool(request.method in SAFE_METHODS 
                     or request.user 
                     and request.user.is_brand)
+        
+        
+class IsAdminUserForObject(permissions.IsAdminUser):
+    def has_object_permission(self, request, view, obj):
+        return bool(request.user and request.user.is_staff)
+    
+    
+
+class AuthorModifyOrReadOnly(permissions.IsAuthenticatedOrReadOnly):
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        return request.user == obj.author

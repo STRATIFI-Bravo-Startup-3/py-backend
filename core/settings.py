@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     'blog',
     #'wallet',
     'chats',
+    
 ]
 
 MIDDLEWARE = [
@@ -275,7 +276,7 @@ ASGI_APPLICATION = "asgi.application"
 
 AUTHENTICATION_BACKENDS = [
 'django.contrib.auth.backends.ModelBackend',
-'account.authentication.EmailAuthBackend',
+# 'account.authentication.EmailAuthBackend',
 'social_core.backends.google.GoogleOAuth2',
 ]
 

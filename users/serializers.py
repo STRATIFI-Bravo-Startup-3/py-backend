@@ -10,6 +10,7 @@ from djoser.serializers import TokenCreateSerializer
 
 
 class UserSerializer(serializers.ModelSerializer):
+    lookup_field = 'slug'
     class Meta:
         model=User
         fields=['username', 'email','is_brand',  'is_influencer', 'is_employee']

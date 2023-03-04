@@ -8,7 +8,7 @@ class PostModelAdmin(admin.ModelAdmin):
 	list_display_links = ["created_at"]
 	list_editable = ["title"]
 	list_filter = ["created_at", "draft"]
-
+	prepopulated_fields = {"slug": ("title",)}
 	search_fields = ["title", "content"]
 	class Meta:
 		model = BlogPost
