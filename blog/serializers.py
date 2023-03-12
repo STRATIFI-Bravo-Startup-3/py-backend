@@ -1,27 +1,28 @@
-from rest_framework import serializers
+from rest_framework import serializers,viewsets
 from .models import BlogPost,Comments#,Category
 from users.models import User
 
-from rest_framework.serializers import HyperlinkedIdentityField, ModelSerializer, SerializerMethodField, ValidationError
+from rest_framework.serializers import HyperlinkedRelatedField,  HyperlinkedIdentityField,ModelSerializer, SerializerMethodField, ValidationError
 from users.serializers import UserSerializer
 from django.contrib.contenttypes.models import ContentType
 
 
 #Post Serializers
-class BlogPostCreateUpdateSerializer(ModelSerializer):
-    class Meta:
-        model = BlogPost
-        fields = [
-            'id',
-            'title',
-            'slug',
-            'content',
-            'publish'
-        ]
+# class BlogPostCreateUpdateSerializer(ModelSerializer):
+#     class Meta:
+#         model = BlogPost
+#         fields = [
+#             'id',
+#             'title',
+#             'slug',
+#             'content',
+#             'publish'
+#         ]
 
 
-post_detail_url = HyperlinkedIdentityField(
-        view_name='posts-api:detail',
+post_detail_url = HyperlinkedRelatedField(
+        read_only=True,
+        view_name='blog-posts:detail',
         lookup_field='slug'
         )
 
@@ -32,11 +33,12 @@ class BlogPostDetailSerializer(ModelSerializer):
     image = SerializerMethodField()
     html = SerializerMethodField()
     comments = SerializerMethodField()
+    
     class Meta:
         model = BlogPost
         fields = [
-            'url',
             'id',
+            'url',
             'user',
             'title',
             'slug',
@@ -63,16 +65,20 @@ class BlogPostDetailSerializer(ModelSerializer):
         return comments
 
 class BlogPostListSerializer(ModelSerializer):
-    url = post_detail_url
-    user = UserSerializer(read_only=True)
+    url = serializers.HyperlinkedRelatedField(view_name="blogpost_post_detail",read_only=True)
+    owner = UserSerializer(read_only=True)
+    lookup_field = "slug"
     class Meta:
         model = BlogPost
         fields = [
+            'image',
             'url',
-            'user',
+            'owner',
             'title',
             'content',
-            'created'
+            'created_at',
+            'slug',
+            
         ]
 
 #Comment Serializer
@@ -223,8 +229,44 @@ class CommentDetailSerializer(ModelSerializer):
         if obj.is_parent:
             return obj.children().count()
         return 0
+    
+class PostSerializer(serializers.ModelSerializer):
+    # owner = serializers.HyperlinkedRelatedField(
+    #     queryset=User.objects.all(), view_name="api_user_detail", lookup_field="email", read_only = False
+    # )
 
+    class Meta:
+        model = BlogPost
+        fields = "__all__"
+        readonly = ["modified_at", "created_at"]
+    
+class PostDetailSerializer(PostSerializer):
+    comments = CommentSerializer(many=True)
 
+    def update(self, instance, validated_data):
+        comments = validated_data.pop("comments")
+
+        instance = super(PostDetailSerializer, self).update(instance, validated_data)
+
+        for comment_data in comments:
+            if comment_data.get("id"):
+                # comment has an ID so was pre-existing
+                continue
+            comment = Comments(**comment_data)
+            comment.creator = self.context["request"].user
+            comment.content_object = instance
+            comment.save()
+
+        return instance
+
+class PostViewSet(viewsets.ModelViewSet):
+    permission_classes = []
+    queryset = BlogPost.objects.all()
+
+    def get_serializer_class(self):
+        if self.action in ("list", "create"):
+            return PostSerializer
+        return PostDetailSerializer
 
 # class CategorySerializer(serializers.ModelSerializer):
     # owner = serializers.ReadOnlyField(source='owner.username')
