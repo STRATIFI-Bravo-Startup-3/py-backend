@@ -4,3 +4,4 @@ venv
 wallet
 migrations
 __pycache__
+.venv
