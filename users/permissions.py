@@ -38,10 +38,13 @@ class IsEmployeeUserOrReadonly(BasePermission):
     def has_permission(self, request, view):
         
         return bool( 
-            request.method in SAFE_METHODS or
-            request.user and request.user.is_employee 
-            and request.user.is_staff 
-            and request.user.is_admin)
+            request.method in SAFE_METHODS )
+        
+    def has_object_permission(self, request, view, obj):
+        return bool(
+            request.user == IsEmployeeUser
+        )
+        
 
 
 
@@ -51,10 +54,12 @@ class IsInfluencerUserOrReadonly(BasePermission):
     def has_permission(self, request, view):
 
         return bool(request.method in SAFE_METHODS 
-                    or request.user 
-                    and request.user.is_influencer)
+                    )
 
-
+    def has_object_permission(self, request, view, obj):
+        return bool(
+            request.user.is_influencer)
+    
 
 class IsBrandUserOrReadonly(BasePermission):
     

@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
 
     #third party
     'rest_framework',
@@ -56,12 +57,21 @@ INSTALLED_APPS = [
     'djoser',
     'ckeditor',
     'ckeditor_uploader',
+    'django_rest_passwordreset',
+    'django_filters',
+    
+    #social-auth
+    'social_django',
+    'django_extensions',
+   
 
     #our
     'users',
     'about',
     'blog',
     #'wallet',
+    'chats',
+    
 ]
 
 MIDDLEWARE = [
@@ -155,12 +165,6 @@ STATIC_URL = '/static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-#CKEDITOR_UPLOAD_PATH = 'ck-uploads/'
-CKEDITOR_UPLOAD_PATH = 'uploads/'
-
-CKEDITOR_ALLOW_NONIMAGE_FILES = False
-
-CKEDITOR_BASEPATH = "/my_static/ckeditor/ckeditor/"
 
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
@@ -174,70 +178,24 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 AWS_QUERYSTRING_AUTH = False
 
+
+CKEDITOR_IMAGE_BACKEND = "pillow"
+CKEDITOR_FORCE_JPEG_COMPRESSION = True
+CKEDITOR_UPLOAD_PATH = 'blogsupport/'
+CKEDITOR_ALLOW_NONIMAGE_FILES = True
+CKEDITOR_JQUERY_URL = '//ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js'
+
+CKEDITOR_FILENAME_GENERATOR = 'utils.get_filename'
+
+
 CKEDITOR_CONFIGS = {
     'default': {
-        'skin': 'moono',
-        # 'skin': 'office2013',
-        'toolbar_Basic': [
-            ['Source', '-', 'Bold', 'Italic']
-        ],
-        'toolbar_YourCustomToolbarConfig': [
-            {'name': 'document', 'items': ['Source', '-', 'Save', 'NewPage', 'Preview', 'Print', '-', 'Templates']},
-            {'name': 'clipboard', 'items': ['Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo']},
-            {'name': 'editing', 'items': ['Find', 'Replace', '-', 'SelectAll']},
-            {'name': 'forms',
-             'items': ['Form', 'Checkbox', 'Radio', 'TextField', 'Textarea', 'Select', 'Button', 'ImageButton',
-                       'HiddenField']},
-            '/',
-            {'name': 'basicstyles',
-             'items': ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat']},
-            {'name': 'paragraph',
-             'items': ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-',
-                       'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'BidiLtr', 'BidiRtl',
-                       'Language']},
-            {'name': 'links', 'items': ['Link', 'Unlink', 'Anchor']},
-            {'name': 'insert',
-             'items': ['Image', 'Flash', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'PageBreak', 'Iframe']},
-            '/',
-            {'name': 'styles', 'items': ['Styles', 'Format', 'Font', 'FontSize']},
-            {'name': 'colors', 'items': ['TextColor', 'BGColor']},
-            {'name': 'tools', 'items': ['Maximize', 'ShowBlocks']},
-            {'name': 'about', 'items': ['About']},
-            '/',  # put this to force next toolbar on new line
-            {'name': 'yourcustomtools', 'items': [
-                # put the name of your editor.ui.addButton here
-                'Preview',
-                'Maximize',
-
-            ]},
-        ],
-        'toolbar': 'YourCustomToolbarConfig',  # put selected toolbar config here
-        # 'toolbarGroups': [{ 'name': 'document', 'groups': [ 'mode', 'document', 'doctools' ] }],
-        # 'height': 291,
-        # 'width': '100%',
-        # 'filebrowserWindowHeight': 725,
-        # 'filebrowserWindowWidth': 940,
-        # 'toolbarCanCollapse': True,
-        # 'mathJaxLib': '//cdn.mathjax.org/mathjax/2.2-latest/MathJax.js?config=TeX-AMS_HTML',
-        'tabSpaces': 4,
-        'extraPlugins': ','.join([
-            'uploadimage', # the upload image feature
-            # your extra plugins here
-            'div',
-            'autolink',
-            'autoembed',
-            'embedsemantic',
-            'autogrow',
-            # 'devtools',
-            'widget',
-            'lineutils',
-            'clipboard',
-            'dialog',
-            'dialogui',
-            'elementspath'
-        ]),
-    }
+        'toolbar': "full",
+        'height': 300,
+        'width': '100%',
+    },
 }
+
 
 
 # Default primary key field type
@@ -248,8 +206,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #rest authentication classes
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        
-
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
@@ -257,9 +213,13 @@ REST_FRAMEWORK = {
     ],
     
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissions',
+        #'rest_framework.permissions.DjangoModelPermissions',
         'rest_framework.permissions.IsAuthenticated',
     ],
+     'DEFAULT_FILTER_BACKENDS': (
+        'rest_framework.filters.SearchFilter',
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
 }
 
 AUTH_USER_MODEL="users.User"
@@ -272,7 +232,7 @@ LOGOUT_REDIRECT_URL = "login"
 CORS_ALLOWED_ORIGINS = [
     #"https://example.com",
     #"https://sub.example.com",
-    #"http://localhost:8080",
+    "http://localhost:8080",
     "http://127.0.0.1:8000",
 ]
 
@@ -285,7 +245,7 @@ SITE_NAME = "Stratifi_ng"
 #EMAIL_HOST = config('EMAIL_HOST')
 #EMAIL_HOST_USER = config('EMAIL_HOST_USER') 
 #EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
-#EMAIL_HOST_USERNAME = config('EMAIL_HOST_USERNAME')
+#EMAIL_HOST_USERNA  ME = config('EMAIL_HOST_USERNAME')
 
 #25, 587	(for unencrypted/TLS connections)
 #465	(for SSL connections)
@@ -295,6 +255,50 @@ EMAIL_USE_TLS = True
 
 #Wallet
 #Paystack
-# PAYSTACK_SECRET_KEY = config('PAYSTACK_SECRET_KEY')
-# PAYSTACK_PUBLIC_KEY = config('PAYSTACK_PUBLIC_KEY')
+#PAYSTACK_SECRET_KEY = config('PAYSTACK_SECRET_KEY')
+#PAYSTACK_PUBLIC_KEY = config('PAYSTACK_PUBLIC_KEY')
 
+
+#Chat Function
+ASGI_APPLICATION = "asgi.application"
+
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels_redis.core.RedisChannelLayer",
+#         "CONFIG": {
+#             #Windows
+#             "hosts": [(config("REDIS_HOST"), config("REDIS_PORT", cast=int))],
+#             #"hosts": [(env("REDIS_HOST"), env.int("REDIS_PORT"))],
+            
+#         },
+#     },
+# }
+
+AUTHENTICATION_BACKENDS = [
+'django.contrib.auth.backends.ModelBackend',
+# 'account.authentication.EmailAuthBackend',
+'social_core.backends.google.GoogleOAuth2',
+]
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '16713319718-791l8p5icf5mov627s0oloomi6t8rl17.apps.googleusercontent.com' # Google Client ID
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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' # Google Client Secret
+
+SOCIAL_AUTH_PIPELINE = [
+'social_core.pipeline.social_auth.social_details',
+'social_core.pipeline.social_auth.social_uid',
+'social_core.pipeline.social_auth.auth_allowed',
+'social_core.pipeline.social_auth.social_user',
+'social_core.pipeline.user.get_username',
+'social_core.pipeline.user.create_user',
+'social_core.pipeline.social_auth.associate_user',
+'social_core.pipeline.social_auth.load_extra_data',
+'social_core.pipeline.user.user_details',
+]
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Your Project API',
+    'DESCRIPTION': 'Your project description',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # OTHER SETTINGS
+}

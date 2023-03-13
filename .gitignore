@@ -2,3 +2,5 @@
 .venv
 venv
 wallet
+migrations
+__pycache__
