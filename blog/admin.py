@@ -1,5 +1,5 @@
 from django.contrib import admin
-from blog.models import BlogPost,Comments
+from blog.models import BlogPost, Comment
 
 
 
@@ -15,7 +15,7 @@ class PostModelAdmin(admin.ModelAdmin):
 
 
 admin.site.register(BlogPost, PostModelAdmin)
-admin.site.register(Comments)
+admin.site.register(Comment)
 
 '''from django.contrib import admin
 from blog.models import Post, Category, Comment

@@ -1,11 +1,11 @@
-from django.http import request, HttpResponseRedirect
-from rest_framework import generics, permissions, status
+from django.http import request, HttpResponseRedirect, Http404
+from rest_framework import generics, authentication, permissions, status, generics
 from rest_framework.mixins import RetrieveModelMixin, ListModelMixin, UpdateModelMixin
 from rest_framework.viewsets import GenericViewSet
 
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
-from .serializers import (DemoSerializer, InfluencerSignupSerializer, 
+from .serializers import (InfluencerSignupSerializer, PasswordResetSerializer, 
 EmployeeSignupSerializer, BrandSignupSerializer, InfluencerProfileSerializer,
 BrandProfileSerializer, EmployeeProfileSerializer, ProfilePictureUpdateSerializer,
 UserSerializer, ChangePasswordSerializer)
@@ -23,64 +23,114 @@ from django.conf import settings
 from rest_framework.decorators import action
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
-
-from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated 
-
-from django.contrib.auth import get_user_model
+from django.template.loader import render_to_string
+from django.contrib.auth import get_user_model, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView, RedirectView, UpdateView
+from djoser.serializers import TokenCreateSerializer
+from django.core.mail import EmailMessage, send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 
 User = get_user_model()
 
+class CustomTokenCreateSerializer(TokenCreateSerializer):
+
+    def validate(self, attrs):
+        email = attrs.get("email")
+        password = attrs.get("password")
+        params = {settings.LOGIN_FIELD: attrs.get(settings.LOGIN_FIELD)}
+        self.user = authenticate(
+            request=self.context.get("request"), **params, password=password
+        )
+        if not self.user:
+            self.user = User.objects.filter(**params).first()
+            if self.user and not self.user.check_password(password):
+                self.fail("invalid_credentials")
+        # We changed only below line
+        if self.user: # and self.user.is_active: 
+            return attrs
+        self.fail("invalid_credentials")
+
 class InfluencerSignupView(generics.GenericAPIView):
-    serializer_class=InfluencerSignupSerializer
-    authentication_classes=()
-    permission_classes=()
-    def get_queryset(self):
-        return Influencer.objects.all()
-#comment
+    serializer_class = InfluencerSignupSerializer
+    authentication_classes = ()
+    permission_classes = ()
 
     def post(self, request, *args, **kwargs):
-        serializer=self.get_serializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user=serializer.save()
+        user = serializer.save()
+
+        # Send verification email to user
+        email_data = {
+            'email_subject': 'Verify your email',
+            'email_body': f"Hello {user.username},\n\nPlease click on the link below to verify your email address:\nhttp://{request.get_host()}/api/verify-email/?etoken={user.email_verification_token}",
+            'to_email': user.email
+        }
+        Util.send_email(email_data)
+
         return Response({
-            "user":UserSerializer(user, context=self.get_serializer_context()).data,
-            "token":Token.objects.get(user=user).key,
-            "message":"account created successfully"
+            "user": UserSerializer(user, context=self.get_serializer_context()).data,
+            "token": Token.objects.get(user=user).key,
+            "message": "Account created successfully"
         })
 
-class DemoSignupView(generics.GenericAPIView):
-    serializer_class=InfluencerSignupSerializer
-    authentication_classes=()
-    permission_classes=()
-    def get_queryset(self):
-        return Influencer.objects.all()
+
+class BrandSignupView(generics.GenericAPIView):
+    authentication_classes = ()
+    permission_classes = ()
+    serializer_class = BrandSignupSerializer
 
     def post(self, request, *args, **kwargs):
-        serializer=self.get_serializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user=serializer.save()
+        user = serializer.save()
 
-
-        user_data = serializer.data
-        user=User.objects.get(email=user_data['email'])
-        etoken = RefreshToken.for_user(user).access_token
-
-        current_site = get_current_site(request).domain
-        relativeLink = reverse('verify-email')
-        absurl = 'https://' + current_site + relativeLink + '?etoken='+str(etoken)
-        email_body = 'Hi'+user.username + 'use the link below to verify your email \n' + absurl
-
-        data={
-            'email_body':email_body,
-            'to_email':user.email,
-            'email_subject':'Verifiy your Email'
+        # Send verification email to user
+        email_data = {
+            'email_subject': 'Verify your email',
+            'email_body': f"Hello {user.username},\n\nPlease click on the link below to verify your email address:\nhttp://{request.get_host()}/api/verify-email/?etoken={user.email_verification_token}",
+            'to_email': user.email
         }
-        Util.send_email(data)
+        Util.send_email(email_data)
+
+        return Response({
+            "user": UserSerializer(user, context=self.get_serializer_context()).data,
+            "token": Token.objects.get(user=user).key,
+            "message": "Account created successfully"
+        })
+
+
+class EmployeeSignupView(generics.GenericAPIView):
+    authentication_classes = ()
+    permission_classes = ()
+    serializer_class = EmployeeSignupSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+
+        # Send verification email to user
+        email_data = {
+            'email_subject': 'Verify your email',
+            'email_body': f"Hello {user.username},\n\nPlease click on the link below to verify your email address:\nhttp://{request.get_host()}/api/verify-email/?etoken={user.email_verification_token}",
+            'to_email': user.email
+        }
+        Util.send_email(email_data)
+
+        return Response({
+            "user": UserSerializer(user, context=self.get_serializer_context()).data,
+            "token": Token.objects.get(user=user).key,
+            "message": "Account created successfully"
+        })
 
 
 class VerifyEmail(generics.GenericAPIView):
@@ -94,6 +144,12 @@ class VerifyEmail(generics.GenericAPIView):
                 user.is_verified = True
                 user.save()
 
+                # Send verification email
+                email_subject = 'Verify Your Email'
+                email_body = render_to_string('verify_email.html', {'user': user})
+                email = EmailMessage(email_subject, email_body, to=[user.email])
+                email.send()
+
             return Response({
                 "user":UserSerializer(user, context=self.get_serializer_context()).data,
                 "token":Token.objects.get(user=user).key,
@@ -101,66 +157,86 @@ class VerifyEmail(generics.GenericAPIView):
             })
         except:
             pass
-        '''except jwt.ExpiredSignatureError  as identifier:
-            return Response(['error':'Activtion expired'], status=status.HTTP_400_BAD_REQUEST)
-        except jwt.exception.DecodeError  as identifier:
-            return Response(['error':'Invalid Token'], status=status.HTTP_400_BAD_REQUEST)
-'''
 
-class BrandSignupView(generics.GenericAPIView):
-    authentication_classes=()
-    permission_classes=()
-    serializer_class=BrandSignupSerializer
-    def get_queryset(self):
-        return Brand.objects.all()
-
-    def post(self, request, *args, **kwargs):
-        serializer=self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user=serializer.save()
-        return Response({
-            "user":UserSerializer(user, context=self.get_serializer_context()).data,
-            "token":Token.objects.get(user=user).key,
-            "message":"account created successfully"
-        })
-
-class EmployeeSignupView(generics.GenericAPIView):
-    authentication_classes=()
-    permission_classes=()
-    serializer_class=EmployeeSignupSerializer
-    def get_queryset(self):
-        return Employee.objects.all()
-
-    serializer_class=EmployeeSignupSerializer
-    def post(self, request, *args, **kwargs):
-        serializer=self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user=serializer.save()
-        return Response({
-            "user":UserSerializer(user, context=self.get_serializer_context()).data,
-            "token":Token.objects.get(user=user).key,
-            "message":"account created successfully"
-        })
     
-class CustomAuthToken(ObtainAuthToken):
+class CustomAuthToken(APIView):
     authentication_classes = []
     permission_classes = []
+    
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data,
                                            context={'request': request})
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
         token, created = Token.objects.get_or_create(user=user)
-
+        
+        # determine the user's dashboard URL based on their user type
+        if hasattr(user, 'influencer'):
+            dashboard_url = f"/{user.username}-dashboard/"
+        elif hasattr(user, 'brand'):
+            dashboard_url = f"/{user.username}-dashboard/"
+        elif hasattr(user, 'employee'):
+            dashboard_url = f"/{user.username}-dashboard/"
+        
         return Response({
             'token': token.key,
             'user_id': user.pk,
             'email': user.email,
-            'username':user.username
+            'username': user.username,
+            'dashboard_url': dashboard_url
         })
+
+
+class UserDashboardView(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        user_type = user.user_type
+        if user_type == 'influencer':
+            influencer = Influencer.objects.get(user=user)
+            data = {
+                'username': user.username,
+                'user_type': user_type,
+                'name': influencer.name,
+                'email': user.email,
+                'profile_picture': influencer.profile_picture.url,
+                'social_media_links': influencer.social_media_links,
+                'stats': {
+                    'followers': influencer.followers,
+                    'following': influencer.following,
+                    'posts': influencer.posts.count()
+                }
+            }
+        elif user_type == 'brand':
+            brand = Brand.objects.get(user=user)
+            data = {
+                'username': user.username,
+                'user_type': user_type,
+                'name': brand.name,
+                'email': user.email,
+                'profile_picture': brand.profile_picture.url,
+                'website': brand.website,
+                'stats': {
+                    'followers': brand.followers.count(),
+                    'following': brand.following.count(),
+                    'campaigns': brand.campaigns.count()
+                }
+            }
+        else:
+            employee = Employee.objects.get(user=user)
+            data = {
+                'username': user.username,
+                'user_type': user_type,
+                'name': employee.name,
+                'email': user.email,
+                'profile_picture': employee.profile_picture.url,
+                'position': employee.position,
+                'department': employee.department,
+            }
+        return Response(data)
  
-
-
 class LogoutView(APIView):
     
     def get_queryset(self):
@@ -168,7 +244,7 @@ class LogoutView(APIView):
 
     def post(self, request, format=None):
         request.auth.delete()
-        return Response(status=status.HTTP_200_OK)
+        return redirect('/')
 
 
 class BrandOnlyView(generics.RetrieveAPIView):
@@ -196,8 +272,7 @@ class EmployeeOnlyView(generics.RetrieveAPIView):
         return self.request.user
 
 
-#class DeleteAccountView(APIView):
-class DeleteAccountView(generics.RetrieveUpdateAPIView):
+class DeleteAccountView(APIView):
 
     def get_queryset(self):
         return User.objects.all()
@@ -212,7 +287,7 @@ class DeleteAccountView(generics.RetrieveUpdateAPIView):
         except:
             return Response({ 'error': 'Something went wrong when trying to delete user' })
 
-
+'''
 class GetUserProfileView(generics.RetrieveUpdateAPIView):
     def get_queryset(self):
         return User.objects.all()
@@ -229,6 +304,7 @@ class GetUserProfileView(generics.RetrieveUpdateAPIView):
         except:
             return Response({ 'error': 'Something went wrong when retrieving profile' })
 
+'''
 
 class BrandListCreateView(generics.ListCreateAPIView):
     queryset = Brand.objects.all()
@@ -290,6 +366,7 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
             User.objects.all(), many=True, context={"request": request}
         )
         
+
 class ChangePasswordView(generics.UpdateAPIView):
     """
     An endpoint for changing password.
@@ -316,16 +393,65 @@ class ChangePasswordView(generics.UpdateAPIView):
             # set_password also hashes the password that the user will get
             self.object.set_password(serializer.data.get("new_password"))
             self.object.save()
+            
+            # Send email notification
+            subject = 'Password Change Notification'
+            html_message = render_to_string('password_change_email.html', {'user': self.object})
+            plain_message = strip_tags(html_message)
+            from_email = 'stratifi8@gmail.com'
+            to_email = self.object.email
+            send_mail(subject, plain_message, from_email, [to_email], html_message=html_message)
+
+            # Re-authenticate the user to keep them logged in
+            update_session_auth_hash(request, self.object)
             response = {
                 'status': 'success',
                 'code': status.HTTP_200_OK,
                 'message': 'Password updated successfully',
                 'data': []
             }
-
             return Response(response)
-
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ForgotPasswordView(generics.GenericAPIView):
+    serializer_class = PasswordResetSerializer
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data.get("email")
+        user = get_object_or_404(User, email=email)
+
+        # Create password reset token and email it to the user
+        current_site = get_current_site(request)
+        subject = "Reset your password"
+        message = render_to_string(
+            "password_reset_email.html",
+            {
+                "user": user,
+                "domain": current_site.domain,
+                "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+                "token": default_token_generator.make_token(user),
+                "reset_url": reverse(
+                    "reset-password-confirm", args=[user.pk, default_token_generator.make_token(user)]
+                ),
+            },
+        )
+
+        email = EmailMessage(
+            subject=subject,
+            body=message,
+            to=[email],
+        )
+        email.send()
+
+        return Response(
+            {"success": "Password reset email has been sent."},
+            status=status.HTTP_200_OK,
+        )
+
 
 #check this out
 class UserDetailView(LoginRequiredMixin, DetailView):
@@ -356,13 +482,3 @@ class UserUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
 
 user_update_view = UserUpdateView.as_view()
 
-
-class UserRedirectView(LoginRequiredMixin, RedirectView):
-
-    permanent = False
-
-    def get_redirect_url(self):
-        return reverse("users:detail", kwargs={"username": self.request.user.username})
-
-
-user_redirect_view = UserRedirectView.as_view()

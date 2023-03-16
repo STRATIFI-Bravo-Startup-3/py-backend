@@ -61,15 +61,15 @@ INSTALLED_APPS = [
     'django_filters',
     
     #social-auth
-    'social_django',
-    'django_extensions',
+    #'social_django',
+    #'django_extensions',
    
 
     #our
     'users',
     'about',
     'blog',
-    #'wallet',
+    'wallet',
     'chats',
     
 ]
@@ -220,7 +220,6 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 AUTH_USER_MODEL="users.User"
@@ -276,9 +275,9 @@ ASGI_APPLICATION = "asgi.application"
 # }
 
 AUTHENTICATION_BACKENDS = [
-'django.contrib.auth.backends.ModelBackend',
-# 'account.authentication.EmailAuthBackend',
-'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+    # 'account.authentication.EmailAuthBackend',
+    'social_core.backends.google.GoogleOAuth2',
 ]
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '16713319718-791l8p5icf5mov627s0oloomi6t8rl17.apps.googleusercontent.com' # Google Client ID

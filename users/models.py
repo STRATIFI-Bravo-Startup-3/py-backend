@@ -8,6 +8,8 @@ from django.contrib.auth.models import AbstractUser
 from rest_framework.authtoken.models import Token
 from django_countries.fields import CountryField
 
+#Define our custom user model that inherits from AbstractUser
+
 class User(AbstractUser):
     is_influencer=models.BooleanField(default=False)
     is_brand=models.BooleanField(default=False)
@@ -19,10 +21,6 @@ class User(AbstractUser):
 
     is_verified=models.BooleanField(default=False)
 
-# Have to comment out the profile_pic object before the terminal errors was fix
-
-    #profile_pic = models.ImageField(null=True, blank=True, upload_to="static/profile/images", default="images/user-default.png",)
-
     def get_absolute_url(self):
         """Get url for user's detail view.
         Returns:
@@ -32,12 +30,14 @@ class User(AbstractUser):
 
     def __str__(self) :
         return self.username
-        
+
+#Automatically generate an authentication token for a new user upon creation        
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
         Token.objects.create(user=instance)
 
+#Define choices for various fields
 RATING_CHOICES =(
     (1, 1),
     (2, 2),
@@ -47,20 +47,7 @@ RATING_CHOICES =(
 )
 
 NICHE_CHOICES =(
-    ('Entertainment', 'Entertainment'),
-    ('Hospitalities', 'Hospitalities'),
-    ('Football', 'Football'),
-)
-
-
-GENDER_CHOICES = (
-    ('M', 'Male'),
-    ('F', 'Female'),
-    ('CNTS', 'Choose Not To Say'),
-    )
-
-
-NICHES = (
+    ('Hs', 'Hospitalities'),
     ('Sc', 'Science'),
     ('Sp', 'Sport'),
     ('Et', 'Entertainment'),
@@ -69,6 +56,14 @@ NICHES = (
     ('Bs', 'Business'),
     ('Ot', 'Others'),
     )
+
+
+GENDER_CHOICES = (
+    ('M', 'Male'),
+    ('F', 'Female'),
+    ('CNTS', 'Choose Not To Say'),
+    )
+    
 
 LANGUAGES = (
     ('English', 'English'),
@@ -86,21 +81,22 @@ LANGUAGES = (
     ('Yoruba', 'Yoruba'),
 )
 
+#Define a Language model
 class Language(models.Model):
     language = models.CharField(max_length=200, unique=True, choices=LANGUAGES, null=True, blank=True)
- 
+    # Returns the language name as the string representation of the object
     def __str__(self):
         return self.language
         
-
+#Define a Niche model
 class Niche(models.Model):
      niche = models.CharField(max_length=200, unique=True, choices=NICHE_CHOICES, null=True, blank=True)
-
+     # Returns the niche name as the string representation of the object
      def __str__(self):
         return self.niche
 
 
-  
+#Define an Influencer model that has a OneToOne relationship with the User model  
 class Influencer(models.Model):
     user=models.OneToOneField(User, related_name="influencer", on_delete=models.CASCADE)
     gender = models.CharField(max_length=20, choices=GENDER_CHOICES, blank=True, null=True)

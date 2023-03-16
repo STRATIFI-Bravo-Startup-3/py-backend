@@ -17,11 +17,11 @@ from django.contrib import admin
 from django.urls import re_path, include
 from rest_framework.authtoken import views
 from rest_framework.authtoken.views import obtain_auth_token
-#from social_django.urls import patterns as social_django_urls
-from drf_spectacular.views import (
-    SpectacularAPIView,
-    SpectacularSwaggerView,
-)
+#from social_django.urls import urlpatterns as social_django_urls
+#from drf_spectacular.views import (
+#    SpectacularAPIView,
+#    SpectacularSwaggerView,
+#)
 
 
 urlpatterns = [
@@ -36,6 +36,8 @@ urlpatterns = [
     re_path('', include("users.urls")),
     re_path('', include("about.urls")),
     re_path('blog/', include("blog.urls")),
-   # re_path('social-auth/', include('social_django.urls', namespace='social')),
-]
+    re_path('wallet/', include("wallet.urls")),
+#re_path('social-auth/', include('social_django.urls', namespace='social')),
+] 
+#+ social_django_urls
 

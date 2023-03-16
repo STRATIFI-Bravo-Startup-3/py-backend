@@ -1,0 +1,107 @@
+Sample data
+Wallet
+{
+  "user_id": 1,
+  "currency": "NGN"
+}
+
+WalletTransaction:
+{
+  "wallet_id": 1,
+  "transaction_type": "deposit",
+  "amount": 1000.00,
+  "status": "pending",
+  "paystack_payment_reference": "PAYSTACK_REFERENCE_CODE"
+}
+
+Milestone
+{
+  "name": "First milestone",
+  "description": "Achievement of first milestone",
+  "amount": 500.00,
+  "influencer_id": 1
+}
+
+Payment:
+{
+  "milestone_id": 1,
+  "brand_id": 2,
+  "amount": 500.00,
+  "status": "pending"
+}
+
+Withdrawal
+{
+    "wallet": 1,
+    "transaction_type": "withdraw",
+    "amount": 500
+}
+
+Deposit
+{
+    "wallet": 1,
+    "transaction_type": "deposit",
+    "amount": 1000
+}
+
+
+For VerifyDeposit:
+
+Assuming the paystack_payment_reference value is "PSR_1234567", a sample GET request to http://localhost:8000/api/verify-deposit/PSR_1234567 would return a successful deposit response.
+
+For CreateMilestone:
+
+Assuming the influencer is a user with ID=1, a sample POST request to http://localhost:8000/api/create-milestone/ with the following data:
+
+json
+Copy code
+{
+  "title": "Sample milestone",
+  "description": "This is a sample milestone.",
+  "due_date": "2022-04-30",
+  "amount": 5000
+}
+would create a new milestone with the given data.
+
+For ListMilestones:
+
+Assuming the influencer is a user with ID=1, a sample GET request to http://localhost:8000/api/list-milestones/ would return a list of all milestones associated with the influencer.
+
+For PayInfluencer:
+
+Assuming the influencer is a user with ID=1, and the brand is a user with ID=2, a sample POST request to http://localhost:8000/api/pay-influencer/ with the following data:
+
+yaml
+Copy code
+{
+  "influencer": 1,
+  "amount": 2000,
+  "milestone": 1
+}
+
+
+
+
+
+
+
+For each endpoint, the errors and success messages generated when incorrect data is inputted depend on the specific error that occurred. However, there are some common HTTP status codes and error messages that can be generated.
+
+/deposit/ endpoint:
+
+Success message: { "message": "Deposit successful" } with an HTTP status code of 200 (OK).
+Error message(s):
+{ "error": "Invalid amount. Amount must be a positive number." } with an HTTP status code of 400 (Bad Request) if the amount is not a positive number.
+{ "error": "Wallet not found." } with an HTTP status code of 404 (Not Found) if the user's wallet is not found.
+/wallet_info/ endpoint:
+
+sSuccess message: { "balance": 1000.0 } with an HTTP status code of 200 (OK) if the balance is retrieved successfully.
+Error message(s):
+{ "error": "Wallet not found." } with an HTTP status code of 404 (Not Found) if the user's wallet is not found.
+/pay_influencer/ endpoint:
+
+Success message: { "message": "Payment successful" } with an HTTP status code of 200 (OK) if the payment is successful.
+Error message(s):
+{ "error": "Invalid amount. Amount must be a positive number." } with an HTTP status code of 400 (Bad Request) if the amount is not a positive number.
+{ "error": "Influencer not found." } with an HTTP status code of 404 (Not Found) if the influencer is not found.
+{ "error": "Insufficient funds." } with an HTTP status code of 400 (Bad Request) if the brand's wallet balance is less than the amount to be paid.

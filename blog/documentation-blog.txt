@@ -1,0 +1,324 @@
+BlogPostListAPIView returns a list of all blog posts or allows to create a new blog post. It also includes search functionality based on title, content, and user's first and last name.
+GET
+[
+    {
+        "id": 1,
+        "title": "My First Blog Post",
+        "content": "This is my first blog post. Welcome to my blog!",
+        "date_posted": "2022-01-01T00:00:00Z",
+        "author": {
+            "id": 1,
+            "username": "johndoe",
+            "email": "johndoe@example.com"
+        }
+    },
+    {
+        "id": 2,
+        "title": "My Second Blog Post",
+        "content": "This is my second blog post. I hope you enjoy it!",
+        "date_posted": "2022-01-02T00:00:00Z",
+        "author": {
+            "id": 2,
+            "username": "janedoe",
+            "email": "janedoe@example.com"
+        }
+    }
+]
+
+
+
+BlogPostDetailAPIView returns a detailed view of a specific blog post identified by its slug.
+GET
+{
+    "id": 1,
+    "title": "My First Blog Post",
+    "content": "This is my first blog post. Welcome to my blog!",
+    "date_posted": "2022-01-01T00:00:00Z",
+    "author": {
+        "id": 1,
+        "username": "johndoe",
+        "email": "johndoe@example.com"
+    },
+    "comments": [
+        {
+            "id": 1,
+            "content": "Great post!",
+            "date_posted": "2022-01-02T00:00:00Z",
+            "author": {
+                "id": 2,
+                "username": "janedoe",
+                "email": "janedoe@example.com"
+            },
+            "children": []
+        },
+        {
+            "id": 2,
+            "content": "I agree with you.",
+            "date_posted": "2022-01-03T00:00:00Z",
+            "author": {
+                "id": 3,
+                "username": "bobsmith",
+                "email": "bobsmith@example.com"
+            },
+            "children": [
+                {
+                    "id": 3,
+                    "content": "Me too!",
+                    "date_posted": "2022-01-04T00:00:00Z",
+                    "author": {
+                        "id": 4,
+                        "username": "maryjones",
+                        "email": "maryjones@example.com"
+                    }
+                }
+            ]
+        }
+    ]
+}
+
+
+CommentCreateAPIView allows users to create a new comment for a blog post or a comment.
+POST
+{
+    "id": 1,
+    "content": "Great post!",
+    "date_posted": "2022-01-02T00:00:00Z",
+    "author": {
+        "id": 2,
+        "username": "janedoe",
+        "email": "janedoe@example.com"
+    },
+    "parent": null,
+    "children": []
+}
+
+
+
+
+CommentListAPIView returns a list of all comments or allows to search through comments based on content and user's first name.
+
+GET
+{
+    "count": 3,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 1,
+            "text": "Great article, thanks for sharing!",
+            "author": "Jane Doe",
+            "email": "jane@example.com",
+            "created_at": "2022-02-25T10:30:00Z",
+            "updated_at": "2022-02-25T10:30:00Z",
+            "post": 1,
+            "parent": null,
+            "children": [
+                {
+                    "id": 2,
+                    "text": "I agree, this was a really helpful post.",
+                    "author": "John Smith",
+                    "email": "john@example.com",
+                    "created_at": "2022-02-25T11:15:00Z",
+                    "updated_at": "2022-02-25T11:15:00Z",
+                    "post": 1,
+                    "parent": 1,
+                    "children": []
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "text": "Thanks for the detailed explanation, it really helped!",
+            "author": "Mike Johnson",
+            "email": "mike@example.com",
+            "created_at": "2022-02-26T12:00:00Z",
+            "updated_at": "2022-02-26T12:00:00Z",
+            "post": 2,
+            "parent": null,
+            "children": []
+        }
+    ]
+}
+
+
+
+CommentDetailAPIView returns a detailed view of a specific comment identified by its primary key.
+
+GET
+
+{
+    "id": 1,
+    "content": "This is a comment on blog post 1",
+    "post": 1,
+    "parent": null,
+    "children": [
+        {
+            "id": 2,
+            "content": "This is a reply to comment 1",
+            "post": 1,
+            "parent": 1,
+            "children": []
+        }
+    ]
+}
+
+
+CommentListCreateAPIView returns a list of all child comments for a specific comment identified by its slug and model type or allows to create a new child comment for the specific comment.
+Endpoint: /api/comments/
+
+GET Request:
+Endpoint: /api/comments/
+
+Response:
+
+{
+    "count": 2,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 1,
+            "content": "This is a great post!",
+            "created_at": "2022-03-01T10:30:00Z",
+            "updated_at": "2022-03-02T14:00:00Z",
+            "blog_post": {
+                "id": 1,
+                "title": "My First Blog Post",
+                "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.",
+                "created_at": "2022-03-01T09:00:00Z",
+                "updated_at": "2022-03-01T09:00:00Z",
+                "author": {
+                    "id": 1,
+                    "username": "johndoe",
+                    "email": "johndoe@example.com",
+                    "first_name": "John",
+                    "last_name": "Doe"
+                }
+            }
+        },
+        {
+            "id": 2,
+            "content": "Thanks for sharing this!",
+            "created_at": "2022-03-01T11:00:00Z",
+            "updated_at": "2022-03-02T15:00:00Z",
+            "blog_post": {
+                "id": 1,
+                "title": "My First Blog Post",
+                "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.",
+                "created_at": "2022-03-01T09:00:00Z",
+                "updated_at": "2022-03-01T09:00:00Z",
+                "author": {
+                    "id": 1,
+                    "username": "johndoe",
+                    "email": "johndoe@example.com",
+                    "first_name": "John",
+                    "last_name": "Doe"
+                }
+            }
+        }
+    ]
+}
+
+POST Request:
+Endpoint: /api/comments/
+
+Request Body:
+
+{
+    "content": "Great post, thanks for sharing!",
+    "blog_post": 1
+}
+
+Response:
+
+{
+    "id": 3,
+    "post": {
+        "id": 1,
+        "title": "My First Blog Post",
+        "content": "This is my first blog post.",
+        "created_at": "2022-01-01T00:00:00Z",
+        "updated_at": "2022-01-01T00:00:00Z",
+        "author": {
+            "id": 1,
+            "username": "johndoe",
+            "email": "johndoe@example.com",
+            "first_name": "John",
+            "last_name": "Doe"
+        }
+    },
+    "parent": null,
+    "content": "This is a new comment.",
+    "created_at": "2022-01-02T00:00:00Z",
+    "updated_at": "2022-01-02T00:00:00Z",
+    "author": {
+        "id": 2,
+        "username": "janedoe",
+        "email": "janedoe@example.com",
+        "first_name": "Jane",
+        "last_name": "Doe"
+    }
+}
+
+
+
+CommentEditAPIView allows the owner of a comment to edit the comment.
+
+URL: `/api/comments/1/edit/`
+
+Request Method: `PUT`
+
+Request Body:
+
+{
+    "content": "This is an edited comment"
+}
+
+Response:
+{
+    "id": 1,
+    "content": "This is an edited comment",
+    "post": 1,
+    "parent": null,
+    "children": [
+        {
+        "id": 2,
+        "content": "This is a reply to comment 1",
+        "post": 1,
+        "parent": 1,
+        "children": []
+        }
+    ]
+}
+
+
+CommentDeleteAPIView allows the owner of a comment to delete the comment.
+
+URL: `/api/comments/1/delete/`
+
+Request Method: `DELETE`
+
+Response:
+
+{
+    "message": "Comment 1 has been deleted successfully."
+}
+
+CommentChildListAPIView returns a list of all child comments for a specific comment identified by its primary key.
+
+URL: `/api/comments/1/children/`
+
+Request Method: `GET`
+
+Response:
+
+[
+    {
+        "id": 2,
+        "content": "This is a reply to comment 1",
+        "post": 1,
+        "parent": 1,
+        "children": []
+    }
+]
+

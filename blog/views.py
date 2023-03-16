@@ -1,7 +1,6 @@
-
 from django.http import HttpResponse
-from django.shortcuts import render,get_object_or_404
-from blog.models import BlogPost,Comments#,Category
+from django.shortcuts import render, get_object_or_404
+from blog.models import BlogPost, Comment #,Category
 from rest_framework import generics
 from . import serializers
 from .serializers import create_comment_serializer
@@ -9,18 +8,19 @@ from users import permissions
 from .forms import BlogPostForm
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser, IsAuthenticatedOrReadOnly
 from .pagination import PostPageNumberPagination
-from rest_framework.generics import CreateAPIView, DestroyAPIView, ListAPIView, UpdateAPIView, RetrieveAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import CreateAPIView, DestroyAPIView, ListAPIView, RetrieveUpdateAPIView
 from users.permissions import (IsOwnerOrReadOnly, AuthorModifyOrReadOnly,IsAdminUserForObject)
+from django.contrib.contenttypes.models import ContentType
 
 from rest_framework.filters import SearchFilter,OrderingFilter
 from django.db.models import Q
 # Create your views here.
 
 
-# class CategoryList(generics.ListCreateAPIView):
+#class CategoryList(generics.ListCreateAPIView):
 #     queryset = Category.objects.all()
 #     serializer_class = serializers.CategorySerializer
-#     # permission_classes = [IsEmployeeUserOrReadonly]
+#     permission_classes = [IsAdminUser]
 
 #     def perform_create(self, serializer):
 #         serializer.save(owner=self.request.user)
@@ -32,16 +32,15 @@ from django.db.models import Q
     
     
           
-class PostList(generics.ListCreateAPIView):
+class BlogPostListAPIView(generics.ListCreateAPIView):
     queryset = BlogPost.objects.all()
     serializer_class = serializers.BlogPostListSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [AllowAny, IsAdminUser]
     search_fields = ['title', 'content', 'slug']
     lookup_field = 'slug'
-    
-    
+
     def get_queryset(self, *args, **kwargs):
-        queryset_list = BlogPost.objects.all() #filter(user=self.request.user)
+        queryset_list = BlogPost.objects.all()
         query = self.request.GET.get("q")
         if query:
             queryset_list = queryset_list.filter(
@@ -54,21 +53,20 @@ class PostList(generics.ListCreateAPIView):
     
 
 
-class PostDetail(generics.RetrieveAPIView):
+class BlogPostDetailAPIView(generics.RetrieveAPIView):
     permission_classes = [AuthorModifyOrReadOnly | IsAdminUserForObject]
     queryset = BlogPost.objects.all()
     serializer_class = serializers.BlogPostDetailSerializer
-    pagination_class = PostPageNumberPagination 
-    
+    pagination_class = PostPageNumberPagination
     
 
     
     
 #Comment API
 class CommentCreateAPIView(CreateAPIView):
-    queryset = Comments.objects.all()
+    queryset = Comment.objects.all()
     #serializer_class = PostCreateUpdateSerializer
-    # permission_classes = [IsAuthenticated]
+
 
     def get_serializer_class(self):
         model_type = self.request.GET.get("type")
@@ -81,17 +79,17 @@ class CommentCreateAPIView(CreateAPIView):
                 user=self.request.user
                 )
 
+    permission_classes = [IsAuthenticated]
 
 class CommentListAPIView(ListAPIView):
     serializer_class = serializers.CommentListSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [AllowAny, IsAuthenticatedOrReadOnly]
     filter_backends= [SearchFilter, OrderingFilter]
     search_fields = ['content', 'user__first_name']
-    pagination_class = PostPageNumberPagination #PageNumberPagination
+    pagination_class = PostPageNumberPagination 
 
     def get_queryset(self, *args, **kwargs):
-        #queryset_list = super(PostListAPIView, self).get_queryset(*args, **kwargs)
-        queryset_list = Comments.objects.filter(id__gte=0) #filter(user=self.request.user)
+        queryset_list = Comment.objects.filter(id__gte=0)
         query = self.request.GET.get("q")
         if query:
             queryset_list = queryset_list.filter(
@@ -101,16 +99,82 @@ class CommentListAPIView(ListAPIView):
                     ).distinct()
         return queryset_list
 
-        
 
-# class CommentDetailAPIView(DestroyModelMixin, UpdateModelMixin, RetrieveAPIView):
-#     queryset = Comments.objects.filter(id__gte=0)
-#     serializer_class = serializers.CommentDetailSerializer
-#     permission_classes = [IsOwnerOrReadOnly]
+class CommentDetailAPIView(RetrieveUpdateAPIView, DestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = serializers.CommentDetailSerializer
+    permission_classes = [IsOwnerOrReadOnly]
 
-#     def put(self, request, *args, **kwargs):
-#         return self.update(request, *args, **kwargs)
+    def get_object(self, *args, **kwargs):
+        queryset = self.get_queryset()
+        obj = get_object_or_404(queryset, id=self.kwargs["pk"])
+        return obj
 
-#     def delete(self, request, *args, **kwargs):
-#         return self.destroy(request, *args, **kwargs)
+
+class CommentListCreateAPIView(generics.ListCreateAPIView):
+    serializer_class = serializers.CommentListCreateSerializer
+    permission_classes = [AllowAny]
+    filter_backends= [SearchFilter, OrderingFilter]
+    search_fields = ['content', 'user__first_name']
+    pagination_class = PostPageNumberPagination #PageNumberPagination
+
+    def get_queryset(self, *args, **kwargs):
+        slug = self.request.GET.get("slug")
+        model_type = self.request.GET.get("type")
+        if slug and model_type:
+            try:
+                content_type = ContentType.objects.get(model=model_type)
+                obj = content_type.get_object_for_this_type(slug=slug)
+            except:
+                return Comment.objects.none()
+            queryset = obj.comments.all().order_by("-timestamp")
+            query = self.request.GET.get("q")
+            if query:
+                queryset = queryset.filter(
+                        Q(content__icontains=query)|
+                        Q(user__first_name__icontains=query) |
+                        Q(user__last_name__icontains=query)
+                        ).distinct()
+            return queryset
+        return Comment.objects.none()
+
+    def perform_create(self, serializer):
+        post_id = self.kwargs['post_id']
+        post = get_object_or_404(BlogPost, id=post_id)
+        serializer.save(author=self.request.user, post=post)
+    
+class CommentEditAPIView(RetrieveUpdateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = serializers.CommentEditSerializer
+    permission_classes = [IsOwnerOrReadOnly]
+
+class CommentDeleteAPIView(DestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = serializers.CommentDetailSerializer
+    permission_classes = [IsOwnerOrReadOnly]
+
+class CommentChildListAPIView(generics.ListAPIView):
+    serializer_class = serializers.CommentListCreateSerializer
+    permission_classes = [AllowAny]
+    filter_backends= [SearchFilter, OrderingFilter]
+    search_fields = ['content', 'user__first_name']
+    pagination_class = PostPageNumberPagination #PageNumberPagination
+
+    def get_queryset(self, *args, **kwargs):
+        parent_id = self.kwargs.get("parent_id")
+        if parent_id:
+            queryset = Comment.objects.filter(parent=parent_id).order_by("-timestamp")
+            query = self.request.GET.get("q")
+            if query:
+                queryset = queryset.filter(
+                        Q(content__icontains=query)|
+                        Q(user__first_name__icontains=query) |
+                        Q(user__last_name__icontains=query)
+                        ).distinct()
+            return queryset
+        return Comment.objects.none()
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
                           
