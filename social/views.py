@@ -1,27 +1,22 @@
-from rest_framework import viewsets
-from .serializers import SocialHandlesSerializer
+from rest_framework import generics
 from .models import SocialHandles
+from .serializers import SocialHandlesSerializer
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
-from rest_framework import generics, permissions
-from rest_framework.permissions import IsAuthenticated 
+from rest_framework.authtoken.models import Token
 
 
 User = get_user_model()
 
-class SocialHandelsViewSet(viewsets.ModelViewSet):
-    queryset = SocialHandles.objects.all().order_by('?')
+class SocialHandlesListCreateView(generics.ListCreateAPIView):
+    queryset = SocialHandles.objects.all()
     serializer_class = SocialHandlesSerializer
+    authentication_classes = (SessionAuthentication, TokenAuthentication)
+    permission_classes = (IsAuthenticated,)
 
-class SocialHandleCreateView(generics.ListCreateAPIView):
-    queryset = User.objects.all()
+class SocialHandlesDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = SocialHandles.objects.all()
     serializer_class = SocialHandlesSerializer
-    permission_classes=[permissions.IsAuthenticated]
-
-class SocialHandelDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = User.objects.all()
-    serializer_class = SocialHandlesSerializer
-
-class SociaLHandleUpdateView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = User.objects.all()
-    permission_classes=[permissions.IsAuthenticated]
-    serializer_class = SocialHandlesSerializer
+    authentication_classes = (SessionAuthentication, TokenAuthentication)
+    permission_classes = (IsAuthenticated,)

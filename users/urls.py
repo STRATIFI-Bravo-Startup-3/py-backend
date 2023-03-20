@@ -15,6 +15,7 @@ VerifyEmail, ChangePasswordView,
 user_detail_view, 
 #user_redirect_view, 
 user_update_view,
+#custom_token_auth,
 ) #(UpdateUserProfileView, #UpdateProfilePicView,
  #LoginView
 
@@ -27,6 +28,7 @@ urlpatterns=[
 
     re_path(r'signup/verify-email', VerifyEmail.as_view(),name='verify-email'),
     
+ #   re_path(r'signin', view=custom_token_auth, name='signin'),
     re_path(r'login',CustomAuthToken.as_view()),
     path('change-password/', ChangePasswordView.as_view(), name='change-password'),
 

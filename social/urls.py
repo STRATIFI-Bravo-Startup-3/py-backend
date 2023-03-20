@@ -1,14 +1,7 @@
-from django.urls import re_path, path, include
-from .views import SocialHandelsViewSet
-from rest_framework import routers
+from django.urls import path
+from .views import SocialHandlesListCreateView, SocialHandlesDetailView
 
-router = routers.DefaultRouters()
-
-router.register(r'socials', SocialHandelsViewSet)
-
-urlpatterns=[
-    re_path('', include(router.urls)),
-    re_path('', include('rest_framework.urls', namespace='rest_framework'))
-
+urlpatterns = [
+    path('social-handles/', SocialHandlesListCreateView.as_view(), name='social_handles_list_create'),
+    path('social-handles/<int:pk>/', SocialHandlesDetailView.as_view(), name='social_handles_detail'),
 ]
-

@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     'blog',
     'wallet',
     'chats',
+    'social',
     
 ]
 
@@ -240,12 +241,18 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 
 #EMAIL_BACKEND = config('EMAIL_BACKEND')
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 SITE_NAME = "Stratifi_ng"
 
 #EMAIL_HOST = config('EMAIL_HOST')
 #EMAIL_HOST_USER = config('EMAIL_HOST_USER') 
 #EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
-#EMAIL_HOST_USERNA  ME = config('EMAIL_HOST_USERNAME')
+#EMAIL_HOST_USERNAME = config('EMAIL_HOST_USERNAME')
+
+#SMTP_HOST = config('SMTP_HOST')
+#SMTP_USER = config('SMTP_USERNAME') 
+#SMTP_PASSWORD = config('SMTP_PASSWORD')
+#SMTP_USERNAME = config('SMTP_USERNAME')
 
 #25, 587	(for unencrypted/TLS connections)
 #465	(for SSL connections)

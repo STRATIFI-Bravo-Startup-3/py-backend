@@ -10,13 +10,15 @@ from django.contrib.auth.forms import PasswordResetForm
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
 
+
+
 User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
     
     class Meta:
         model=User
-        fields=['id', 'username', 'email','is_brand',  'is_influencer', 'is_employee', 
+        fields=['id', 'username', 'email_verification_token', 'email','is_brand',  'is_influencer', 'is_employee', 
         #'slug'
         ]
         #lookup_field = 'slug'
@@ -191,3 +193,23 @@ class PasswordResetSerializer(serializers.Serializer):
                 email_template_name="registration/password_reset_email.html",
                 subject_template_name="registration/password_reset_subject.txt",
             )
+
+
+'''class CustomTokenCreateSerializer(TokenObtainPairSerializer):
+#class CustomTokenCreateSerializer(TokenCreateSerializer):
+
+    def validate(self, attrs):
+        email = attrs.get("email")
+        password = attrs.get("password")
+        params = {settings.LOGIN_FIELD: attrs.get(settings.LOGIN_FIELD)}
+        self.user = authenticate(
+            request=self.context.get("request"), **params, password=password
+        )
+        if not self.user:
+            self.user = User.objects.filter(**params).first()
+            if self.user and not self.user.check_password(password):
+                self.fail("invalid_credentials")
+        # We changed only below line
+        if self.user: # and self.user.is_active: 
+            return attrs
+        self.fail("invalid_credentials")'''

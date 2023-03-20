@@ -2,6 +2,7 @@
 venv
 db.sqlite3   
 notification
+social
 .venv
 migrations
 __pycache__

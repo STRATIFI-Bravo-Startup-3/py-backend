@@ -1,0 +1,13 @@
+JSON payload for email-based sign in:
+
+{
+    "email_or_username": "user1@example.com",
+    "password": "password123"
+}
+
+JSON payload for username-based sign in:
+
+{
+    "email_or_username": "user1",
+    "password": "password123"
+}

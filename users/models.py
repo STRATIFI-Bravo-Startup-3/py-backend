@@ -21,6 +21,8 @@ class User(AbstractUser):
 
     is_verified=models.BooleanField(default=False)
 
+    email_verification_token = models.CharField(max_length=100, blank=True, null=True)
+
     def get_absolute_url(self):
         """Get url for user's detail view.
         Returns:

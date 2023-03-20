@@ -38,25 +38,9 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
+
 User = get_user_model()
 
-class CustomTokenCreateSerializer(TokenCreateSerializer):
-
-    def validate(self, attrs):
-        email = attrs.get("email")
-        password = attrs.get("password")
-        params = {settings.LOGIN_FIELD: attrs.get(settings.LOGIN_FIELD)}
-        self.user = authenticate(
-            request=self.context.get("request"), **params, password=password
-        )
-        if not self.user:
-            self.user = User.objects.filter(**params).first()
-            if self.user and not self.user.check_password(password):
-                self.fail("invalid_credentials")
-        # We changed only below line
-        if self.user: # and self.user.is_active: 
-            return attrs
-        self.fail("invalid_credentials")
 
 class InfluencerSignupView(generics.GenericAPIView):
     serializer_class = InfluencerSignupSerializer
@@ -158,33 +142,45 @@ class VerifyEmail(generics.GenericAPIView):
         except:
             pass
 
-    
-class CustomAuthToken(APIView):
-    authentication_classes = []
-    permission_classes = []
+
+class CustomAuthToken(ObtainAuthToken):
     
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data,
-                                           context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        token, created = Token.objects.get_or_create(user=user)
+        #serializer = self.serializer_class(data=request.data,
+        #                                   context={'request': request})
+        #serializer.is_valid(raise_exception=True)
+       # user = serializer.validated_data['user']
+
+
+        email_or_username = request.data.get('email_or_username')
+        password = request.data.get('password')
         
-        # determine the user's dashboard URL based on their user type
-        if hasattr(user, 'influencer'):
-            dashboard_url = f"/{user.username}-dashboard/"
-        elif hasattr(user, 'brand'):
-            dashboard_url = f"/{user.username}-dashboard/"
-        elif hasattr(user, 'employee'):
-            dashboard_url = f"/{user.username}-dashboard/"
+        # Check if user is trying to sign in using email or username
+        if '@' in email_or_username:
+            user = authenticate(email=email_or_username, password=password)
+        else:
+            user = authenticate(username=email_or_username, password=password)
+            
+        if user is not None:
+            token, created = Token.objects.get_or_create(user=user)
         
-        return Response({
-            'token': token.key,
-            'user_id': user.pk,
-            'email': user.email,
-            'username': user.username,
-            'dashboard_url': dashboard_url
-        })
+            # determine the user's dashboard URL based on their user type
+            if user.user_type == 'influencer':
+                dashboard_url = reverse('influencer-dashboard', kwargs={'username':user.username})
+            elif user.user_type == 'brand':
+                dashboard_url = reverse('brand-dashboard', kwargs={'username':user.username})
+            elif user.user_type == 'employee':
+                dashboard_url = reverse('employee-dashboard', kwargs={'username':user.username})
+            
+            return Response({
+                'token': token.key,
+                'user_id': user.pk,
+                'email': user.email,
+                'username': user.username,
+                'dashboard_url': dashboard_url
+            })
+        return Response({'error': 'Invalid credentials'})
+
 
 
 class UserDashboardView(APIView):
