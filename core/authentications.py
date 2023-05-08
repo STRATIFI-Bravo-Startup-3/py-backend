@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from social_core.backends.google import GoogleOAuth2Backend
+from users.models import Influencer, Brand
 
 User = get_user_model()
 
@@ -22,9 +23,9 @@ class CustomGoogleOAuth2Backend(GoogleOAuth2Backend):
     def create_user(self, *args, **kwargs):
         user = super().create_user(*args, **kwargs)
         role = kwargs.get('role')
-        if role == 'brand':
+        if user.role == User.Role.BRAND:
             Brand.objects.create(user=user)
-        elif role == 'influencer':
+        elif user.role == User.Role.INFLUENCER:
             Influencer.objects.create(user=user)
         return user
 
