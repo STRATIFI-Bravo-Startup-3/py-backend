@@ -1,215 +1,100 @@
 from rest_framework import serializers
-from rest_framework.authtoken.models import Token
-from django.contrib.auth import password_validation
-from django.utils.translation import gettext_lazy as _
+from django.contrib.auth import get_user_model
+from djoser.serializers import UserCreateSerializer, UserSerializer
+from .models import BrandProfile, InfluencerProfile, Campaign, Job
 from django_countries.serializers import CountryFieldMixin
-from .models import User, Influencer, Brand, Employee
-from django.contrib.auth import authenticate, get_user_model
-from djoser.conf import settings
-from django.contrib.auth.forms import PasswordResetForm
-from rest_framework.exceptions import ValidationError
-from rest_framework.validators import UniqueValidator
+from rest_framework import serializers
+from django.contrib.auth import get_user_model
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+from django.utils.text import slugify
 
 
 
 User = get_user_model()
 
-class UserSerializer(serializers.ModelSerializer):
+class MyUserSerializer(UserSerializer):
+    role = serializers.ChoiceField(choices=User.Role.choices)
     
-    class Meta:
-        model=User
-        fields=['id', 'username', 'email_verification_token', 'email','is_brand',  'is_influencer', 'is_employee', 
-        #'slug'
-        ]
-        #lookup_field = 'slug'
-
-class InfluencerSignupSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(
-        validators=[UniqueValidator(queryset=User.objects.all())]
-    )
-    password = serializers.CharField(style={"input_type":"password"}, write_only=True)
-    password2 = serializers.CharField(style={"input_type":"password"}, write_only=True)
-
-    class Meta:
+    class Meta(UserSerializer.Meta):
         model = User
-        fields = ['username', 'email', 'password', 'password2']
-        extra_kwargs = {
-            'password': {'write_only': True},
-        }
-        # Add UniqueValidator for username
-        username = serializers.CharField(validators=[UniqueValidator(queryset=User.objects.all())])
-
-    def create(self, validated_data, **kwargs):
-        user = User(
-            username=self.validated_data['username'],
-            email=self.validated_data['email'],
-            is_influencer=True,
-        )
-        password = self.validated_data['password']
-        password2 = self.validated_data['password2']
-        if password != password2:
-            raise serializers.ValidationError({"error": "password do not match"})
-        user.set_password(password)
-        user.save()
-        Token.objects.get_or_create(user=user)
-        Influencer.objects.create(user=user)
-        return user
+        fields = ('username', 'email', 'role')
 
 
-class BrandSignupSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(
-        validators=[UniqueValidator(queryset=User.objects.all())]
-    )
-    password = serializers.CharField(style={"input_type":"password"}, write_only=True)
-    password2 = serializers.CharField(style={"input_type":"password"}, write_only=True)
+class UserCreateSerializer(UserCreateSerializer):
+    role = serializers.ChoiceField(choices=User.Role.choices)
 
-    class Meta:
+    class Meta(UserCreateSerializer.Meta):
         model = User
-        fields = ['username', 'email', 'password', 'password2']
+        fields = ['username', 'email', 'password', 'role']
         extra_kwargs = {
+            'email': {'required': True},
+            'username': {'required': True},
             'password': {'write_only': True},
+            'role': {'required': True}
         }
-        # Add UniqueValidator for username
-        username = serializers.CharField(validators=[UniqueValidator(queryset=User.objects.all())])
-
-    def create(self, validated_data, **kwargs):
-        user = User(
-            username=self.validated_data['username'],
-            email=self.validated_data['email'],
-            is_brand=True,
-        )
-        password = self.validated_data['password']
-        password2 = self.validated_data['password2']
-        if password != password2:
-            raise serializers.ValidationError({"error": "password do not match"})
-        user.set_password(password)
-        user.save()
-        Token.objects.get_or_create(user=user)
-        Brand.objects.create(user=user)
-        return user
 
 
-
-class EmployeeSignupSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(
-        validators=[UniqueValidator(queryset=User.objects.all())]
-    )
-    password = serializers.CharField(style={"input_type":"password"}, write_only=True)
-    password2 = serializers.CharField(style={"input_type":"password"}, write_only=True)
-
-    class Meta:
-        model = User
-        fields = ['username', 'email', 'password', 'password2']
-        extra_kwargs = {
-            'password': {'write_only': True},
-        }
-        # Add UniqueValidator for username
-        username = serializers.CharField(validators=[UniqueValidator(queryset=User.objects.all())])
-
-    def create(self, validated_data, **kwargs):
-        user = User(
-            username=self.validated_data['username'],
-            email=self.validated_data['email'],
-            is_employee=True,
-        )
-        password = self.validated_data['password']
-        password2 = self.validated_data['password2']
-        if password != password2:
-            raise serializers.ValidationError({"error": "password do not match"})
-        user.set_password(password)
-        user.save()
-        Token.objects.get_or_create(user=user)
-        Brand.objects.create(user=user)
-        return user
 
 
 class BrandProfileSerializer(CountryFieldMixin, serializers.ModelSerializer):
+    user = MyUserSerializer()
+
     class Meta:
-        model = Brand
-        fields = '__all__'
+        model = BrandProfile
+        fields = ('__all__')
+        
 
 class InfluencerProfileSerializer(CountryFieldMixin, serializers.ModelSerializer):
-    class Meta:
-        model = Influencer
-        fields = '__all__'
+    user = MyUserSerializer()
 
-class EmployeeProfileSerializer(CountryFieldMixin, serializers.ModelSerializer):
     class Meta:
-        model = Employee
-        fields = '__all__'
+        model = BrandProfile
+        fields = ('__all__')
 
-class ProfilePictureUpdateSerializer(serializers.ModelSerializer):
+
+class BrandProfileUpdateSerializer(CountryFieldMixin, serializers.ModelSerializer):
+    class Meta:
+        model = BrandProfile
+        fields = '__all__'
+        read_only_fields = ('user',)
+
+class InfluencerProfileUpdateSerializer(CountryFieldMixin, serializers.ModelSerializer):
+    class Meta:
+        model = InfluencerProfile
+        fields = '__all__'
+        read_only_fields = ('user',)
+
+class ProfilePictureSerializer(serializers.ModelSerializer):
+    profile_picture = serializers.ImageField(write_only=True)
+
     class Meta:
         model = User
-        fields = ['profile_pic']
+        fields = ('profile_picture',)
 
-        
-class ChangePasswordSerializer(serializers.Serializer):
-    """
-    Serializer for password change endpoint.
-    """
-    old_password = serializers.CharField(required=True)
-    new_password = serializers.CharField(required=True)
-    confirm_password = serializers.CharField(required=True)
+    def update(self, instance, validated_data):
+        profile_picture = validated_data.pop('profile_picture', None)
 
-    def validate(self, data):
-        if data['new_password'] != data['confirm_password']:
-            raise serializers.ValidationError("The new password and confirm password do not match.")
-        return data
+        if profile_picture:
+            filename = slugify(instance.username)
+            path = f"profile_pictures/{filename}"
+            if instance.profile_picture.name != 'profile_pictures/default.png':
+                default_storage.delete(instance.profile_picture.name)
+            instance.profile_picture.save(path, ContentFile(profile_picture.read()))
 
+        return super().update(instance, validated_data)
 
-class PasswordResetSerializer(serializers.Serializer):
-    """
-    Serializer for requesting a password reset e-mail.
-    """
-    username_or_email = serializers.CharField(
-        label=_("Username or Email"), max_length=254
-    )
+class CampaignSerializer(serializers.ModelSerializer):
+    brand = serializers.ReadOnlyField(source='brand.username')
 
-    def validate_username_or_email(self, value):
-        """
-        Validate that the username or email exists in the system.
-        """
-        user_model_field = User.USERNAME_FIELD
-        try:
-            user = User.objects.get(**{user_model_field: value})
-        except User.DoesNotExist:
-            raise serializers.ValidationError(
-                _("User with this username/email does not exist.")
-            )
-        return user
-
-    def save(self):
-        """
-        Generate a one-use only link for resetting password and send it to the user.
-        """
-        request = self.context.get("request")
-        user = self.validated_data["username_or_email"]
-        form = PasswordResetForm({"email": user.email})
-        if form.is_valid():
-            form.save(
-                request=request,
-                use_https=request.is_secure(),
-                email_template_name="registration/password_reset_email.html",
-                subject_template_name="registration/password_reset_subject.txt",
-            )
+    class Meta:
+        model = Campaign
+        fields = '__all__'
 
 
-'''class CustomTokenCreateSerializer(TokenObtainPairSerializer):
-#class CustomTokenCreateSerializer(TokenCreateSerializer):
+class JobSerializer(serializers.ModelSerializer):
+    influencer = serializers.ReadOnlyField(source='influencer.username')
 
-    def validate(self, attrs):
-        email = attrs.get("email")
-        password = attrs.get("password")
-        params = {settings.LOGIN_FIELD: attrs.get(settings.LOGIN_FIELD)}
-        self.user = authenticate(
-            request=self.context.get("request"), **params, password=password
-        )
-        if not self.user:
-            self.user = User.objects.filter(**params).first()
-            if self.user and not self.user.check_password(password):
-                self.fail("invalid_credentials")
-        # We changed only below line
-        if self.user: # and self.user.is_active: 
-            return attrs
-        self.fail("invalid_credentials")'''
+    class Meta:
+        model = Job
+        fields = '__all__'

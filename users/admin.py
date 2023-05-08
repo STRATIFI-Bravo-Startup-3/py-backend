@@ -1,10 +1,31 @@
 from django.contrib import admin
-from .models import User, Influencer, Brand, Employee, Language, Niche
-# Register your models here.
+from django.contrib.auth.admin import UserAdmin
 
-admin.site.register(User)
-admin.site.register(Influencer)
+from .models import (
+User, BrandProfile, Brand, InfluencerProfile, Influencer,
+ Niche, AgeBracket, Platform, Language, Gender, InfluencerType
+)
+
+class BrandProfileInline(admin.StackedInline):
+    model = BrandProfile
+    can_delete = False
+
+
+class InfluencerProfileInline(admin.StackedInline):
+    model = InfluencerProfile
+    can_delete = False
+
+
+class CustomUserAdmin(UserAdmin):
+    inlines = [BrandProfileInline, InfluencerProfileInline]
+
+
+admin.site.register(User, CustomUserAdmin)
 admin.site.register(Brand)
-admin.site.register(Language)
+admin.site.register(Influencer)
 admin.site.register(Niche)
-admin.site.register(Employee)
+admin.site.register(AgeBracket)
+admin.site.register(Platform)
+admin.site.register(Language)
+admin.site.register(Gender)
+admin.site.register(InfluencerType)

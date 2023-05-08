@@ -1,23 +1,17 @@
 from rest_framework.permissions import BasePermission
 from rest_framework import permissions
-
-edit_methods = ("PUT", "PATCH", "POST")
-SAFE_METHODS = ('GET', 'HEAD', 'OPTIONS')
+from django.contrib.auth import get_user_model
+User = get_user_model
 
 
 class IsBrandUser(BasePermission):
     def has_permission(self, request, view):
-        return bool(request.user and request.user.is_brand)
+        return bool(request.user and request.user.role == User.Role.BRAND)
 
 
 class IsInfluencerUser(BasePermission):
     def has_permission(self, request, view):
-        return bool(request.user and request.user.is_influencer)
-
-
-class IsEmployeeUser(BasePermission):
-    def has_permission(self, request, view):
-        return bool(request.user and request.user.is_employee and request.user.is_staff and request.user.is_admin)
+        return bool(request.user and request.user.role == User.Role.INFLUENCER)
 
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
@@ -27,28 +21,22 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         return obj.owner == request.user
 
 
-class IsEmployeeUserOrReadonly(BasePermission):
-    def has_permission(self, request, view):
-        return bool(request.method in SAFE_METHODS)
-
-    def has_object_permission(self, request, view, obj):
-        return bool(request.user.is_employee)
-
-
-
 class IsInfluencerUserOrReadonly(BasePermission):
     def has_permission(self, request, view):
-        return bool(request.method in SAFE_METHODS)
+        return bool(request.method in permissions.SAFE_METHODS or (request.user and request.user.role == User.Role.INFLUENCER))
 
     def has_object_permission(self, request, view, obj):
-        return bool(request.user and request.user.is_influencer)
+        return bool(request.user and request.user.role == User.Role.INFLUENCER)
 
 
 class IsBrandUserOrReadonly(BasePermission):
     def has_permission(self, request, view):
-        return bool(request.method in SAFE_METHODS or (request.user and request.user.is_brand))
+        return bool(request.method in permissions.SAFE_METHODS or (request.user and request.user.role == User.Role.BRAND))
 
-        
+    def has_object_permission(self, request, view, obj):
+        return bool(request.user and request.user.role == User.Role.BRAND)
+
+
 class IsAdminUserForObject(permissions.IsAdminUser):
     def has_object_permission(self, request, view, obj):
         return bool(request.user and request.user.is_staff)
