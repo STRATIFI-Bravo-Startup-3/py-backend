@@ -27,16 +27,15 @@ class User(AbstractUser):
         BRAND = "BRAND", "Brand"
         INFLUENCER = "INFLUENCER", "Influencer"
 
-    base_role = Role.INFLUENCER
-
     role = models.CharField(max_length=50, choices=Role.choices)
-    
     profile_picture = models.ImageField(upload_to=RenameProfilePicture('profile_pictures/'), default='profile_pictures/default.png')
 
     def save(self, *args, **kwargs):
         if not self.pk:
-            self.role = self.base_role
+            if not self.role:
+                self.role = self.Role.OTHER
         return super().save(*args, **kwargs)
+
 
 
 class Niche(models.Model):
@@ -59,6 +58,11 @@ class Language(models.Model):
     name = models.CharField(max_length=200)
     def __str__(self):
         return self.name
+
+class CompanySize(models.Model):
+    name = models.CharField(max_length=200)
+    def __str__(self):
+        return self.name
     
 class Gender(models.Model):
     name = models.CharField(max_length=200)
@@ -75,10 +79,11 @@ class BrandManager(BaseUserManager):
         results = super().get_queryset(*args, **kwargs)
         return results.filter(role=User.Role.BRAND)
 
-
 class Brand(User):
     base_role = User.Role.BRAND
     brand = BrandManager()
+    
+    REQUIRED_FIELDS = ['company_name']
 
     class Meta:
         proxy = True
@@ -88,9 +93,11 @@ class Brand(User):
         return "Only for brands"
 
 
+
+
 @receiver(post_save, sender=Brand)
 def create_user_profile(sender, instance, created, **kwargs):
-    if created and instance.role == "BRAND":
+    if created and instance.role == User.Role.BRAND:
         BrandProfile.objects.create(user=instance)
 
 
@@ -107,7 +114,13 @@ class BrandProfile(models.Model):
     ratings = models.PositiveIntegerField(choices=RATING_CHOICES, blank=True, null=True)
     company_name=models.CharField(max_length=200, null=True, blank=True)
     contact_person = models.CharField(max_length=200, null=True, blank=True)
-    company_size = models.CharField(max_length=200, null=True, blank=True)
+    class CompanySize(models.TextChoices):
+        MICRO = 'Micro', '1-9 employees'
+        SMALL = 'Small', '10-49 employees'
+        MEDIUM = 'Medium', '50-249 employees'
+        LARGE = 'Large', '250-999 employees'
+        ENTERPRISE = 'Enterprise', '1000+ employees'
+    company_size = models.CharField(max_length=20, choices=CompanySize.choices, default=CompanySize.MICRO)
     languages = models.ManyToManyField(Language, blank=True)
     address = models.CharField(max_length=255, null=True, blank=True)
     niches = models.ManyToManyField(Niche, blank=True)
@@ -134,6 +147,8 @@ class InfluencerManager(BaseUserManager):
 class Influencer(User):
     base_role = User.Role.INFLUENCER
     influencer = InfluencerManager()
+    
+    REQUIRED_FIELDS = ['first_name', 'last_name']
 
     class Meta:
         proxy = True
@@ -183,7 +198,7 @@ class InfluencerProfile(models.Model):
 
 @receiver(post_save, sender=Influencer)
 def create_user_profile(sender, instance, created, **kwargs):
-    if created and instance.role == "INFLUENCER":
+    if created and instance.role == User.Role.INFLUENCER:
         InfluencerProfile.objects.create(user=instance)
 
 

@@ -15,6 +15,10 @@ import os
 from datetime import timedelta
 from os import environ
 from distutils.util import strtobool
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,7 +28,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-h71(!)tc*e&tjgo5y$97!mq_!#9bkk)^_%0co=t8-6hi(*@io@'
+
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -53,6 +58,14 @@ INSTALLED_APPS = [
     'corsheaders',
     'djoser',
     'drf_yasg',
+    'channels',
+    'channels_redis',
+    'ckeditor',
+    
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 ]
 
 MIDDLEWARE = [
@@ -101,13 +114,12 @@ if DEBUG:
 else:
     DATABASES = {
         'default': {
-            #django.db.backends.postgresql (standard) and django.contrib.gis.db.backends.postgis (gis)
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'production_db',
-            'USER': 'myuser',
-            'PASSWORD': 'mypassword',
-            'HOST': 'localhost',
-            'PORT': '',
+            'NAME': os.environ.get('POSTGRES_DATABASE'),
+            'USER': os.environ.get('POSTGRES_USER'),
+            'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+            'HOST': os.environ.get('POSTGRES_HOST'),
+            'PORT': '5432',
         }
     }
 '''
@@ -240,9 +252,9 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 #EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-#EMAIL_HOST = config('EMAIL_HOST')
-#EMAIL_HOST_USER = config('EMAIL_HOST_USER') 
-#EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+#EMAIL_HOST = os.environ.get('EMAIL_HOST')
+#EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER') 
+#EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 #25, 587	(for unencrypted/TLS connections)
 #465	(for SSL connections)
 EMAIL_PORT = 587 
@@ -251,29 +263,31 @@ EMAIL_USE_TLS = True
 
 
 
-#Wallet
-#Paystack
-#PAYSTACK_SECRET_KEY = config('PAYSTACK_SECRET_KEY')
-#PAYSTACK_PUBLIC_KEY = config('PAYSTACK_PUBLIC_KEY')
+# Wallet
+# Paystack
+# PAYSTACK_SECRET_KEY = os.environ.get('PAYSTACK_SECRET_KEY', 'default_secret_key')
+# PAYSTACK_PUBLIC_KEY = os.environ.get('PAYSTACK_PUBLIC_KEY', 'default_public_key')
+
 
 
 #Chat Function
 ASGI_APPLICATION = "asgi.application"
 
+
 # CHANNEL_LAYERS = {
 #     "default": {
 #         "BACKEND": "channels_redis.core.RedisChannelLayer",
 #         "CONFIG": {
-#             #Windows
-#             "hosts": [(config("REDIS_HOST"), config("REDIS_PORT", cast=int))],
-#             #"hosts": [(env("REDIS_HOST"), env.int("REDIS_PORT"))],
-            
+#             "hosts": [os.environ.get('KV_URL')],
 #         },
+#         "ROUTING": "core.routing.websocket_urlpatterns",
 #     },
 # }
 
+
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
     #'core.authentication.CustomModelBackend',
     # 'account.authentication.EmailAuthBackend',
     
@@ -317,10 +331,10 @@ SIMPLE_JWT = {
 }
 
 DJOSER = {
-    #'LOGIN_FIELD': 'email',
+    'LOGIN_FIELD': 'email',
     'LOGIN_FIELD': 'username',
-    #'LOGIN_FIELD': ['email', 'username'],
-        #{'email', 'username'},
+    #'LOGIN_FIELD': ['email','username'],
+        
     'USER_CREATE_PASSWORD_RETYPE': True,
     'USERNAME_CHANGED_EMAIL_CONFIRMATION': True,
     'PASSWORD_CHANGED_EMAIL_CONFIRMATION': True,
@@ -347,14 +361,37 @@ DJOSER = {
     },
 }
 
-#SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = 'your-google-oauth2-key'
-#SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'your-google-oauth2-secret'
-#SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email', 'profile']
-#SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {'access_type': 'offline'}
-#SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_DOMAINS = ['your-domain.com']
 
 SWAGGER_SETTINGS = {
     
     'VALIDATOR_URL': 'http://localhost:8189',
     
 }
+
+SITE_ID = 1
+
+# Google OAuth2 configuration
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {'access_type': 'online'},
+        'APP': {
+            'client_id': 'your_client_id',
+            'secret': 'your_client_secret',
+            'key': ''
+        }
+    }
+}
+
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_USERNAME_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_SESSION_REMEMBER = True
+ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
+ACCOUNT_ADAPTER = 'core.adapter.CustomAccountAdapter'
+SOCIALACCOUNT_ADAPTER = 'core.adapter.CustomSocialAccountAdapter'
+SOCIALACCOUNT_QUERY_EMAIL = True
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'

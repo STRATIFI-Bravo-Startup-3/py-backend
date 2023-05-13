@@ -31,8 +31,27 @@ class UserCreateSerializer(UserCreateSerializer):
             'email': {'required': True},
             'username': {'required': True},
             'password': {'write_only': True},
-            'role': {'required': True}
+            'role': {'required': True},
+            'company_name': {'required': False},
+            'first_name': {'required': False},
+            'last_name': {'required': False}
+            
         }
+        
+    def create(self, validated_data):
+        role = validated_data.pop('role')
+        password = validated_data.pop('password')
+        user = User.objects.create_user(**validated_data, role=role, password=password)
+        if role == User.Role.BRAND:
+            company_name = self.initial_data.get('company_name')
+            brand_profile = BrandProfile(user=user, company_name=company_name)
+            brand_profile.save()
+        elif role == User.Role.INFLUENCER:
+            first_name = self.initial_data.get('first_name')
+            last_name = self.initial_data.get('last_name')
+            influencer_profile = InfluencerProfile(user=user, first_name=first_name, last_name=last_name)
+            influencer_profile.save()
+        return user
 
 
 

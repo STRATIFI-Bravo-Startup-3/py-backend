@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin
 
 from .models import (
 User, BrandProfile, Brand, InfluencerProfile, Influencer,
- Niche, AgeBracket, Platform, Language, Gender, InfluencerType
+ Niche, AgeBracket, Platform, Language, Gender, InfluencerType, CompanySize
 )
 
 class BrandProfileInline(admin.StackedInline):
@@ -29,3 +29,4 @@ admin.site.register(Platform)
 admin.site.register(Language)
 admin.site.register(Gender)
 admin.site.register(InfluencerType)
+admin.site.register(CompanySize)
