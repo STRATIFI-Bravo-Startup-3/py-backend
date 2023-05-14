@@ -6,6 +6,8 @@ from django_countries.fields import CountryField
 #from social.models import SocialMediaHandles
 #from chats.models import Conversation, Message
 
+#some updates
+
 import os
 from uuid import uuid4
 from django.utils.deconstruct import deconstructible
