@@ -3,9 +3,10 @@ from rest_framework.viewsets import GenericViewSet
 
 from .models import Conversation, Message
 from .paginaters import MessagePagination
-from rest_framework.permissions import IsOwnerOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .serializers import MessageSerializer, ConversationSerializer
 from rest_framework import permissions
+from users.permissions import IsOwnerOrReadOnly
 
 
 # Permissions for ConversationViewSet
@@ -21,7 +22,8 @@ class ConversationViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, 
     serializer_class = ConversationSerializer
     queryset = Conversation.objects.none()
     lookup_field = "name"
-    permission_classes = [IsOwnerOrReadOnly] # Add this line to enable the permission class
+    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    # Add this line to enable the permission class
     
 
     def get_queryset(self):

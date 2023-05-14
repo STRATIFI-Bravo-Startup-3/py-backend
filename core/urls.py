@@ -21,9 +21,23 @@ schema_view = get_schema_view(
    permission_classes=[permissions.AllowAny],
 )
 
+from chats.consumers import ChatConsumer, NotificationConsumer
+
+websocket_urlpatterns = [
+    path("<conversation_name>/", ChatConsumer.as_asgi()),
+    path("notifications/", NotificationConsumer.as_asgi()),
+]
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('users.urls')),
+    #chat 
+    re_path('', include('chats.urls')),
+    #blog
+    re_path('', include('blog.urls')),
+    #wallet
+    re_path('', include('wallet.urls')),
+    
     #path('api-auth/', include('rest_framework.urls')),
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
@@ -42,4 +56,8 @@ urlpatterns = [
     
 ]
 
+urlpatterns += [
+    path('chat/', include((websocket_urlpatterns, "chats"), namespace='chats')),
+    #re_path(r'^.*', TemplateView.as_view(template_name='index.html'))
+]
 #urlpatterns += [re_path(r'^.*', TemplateView.as_view(template_name='index.html'))] 

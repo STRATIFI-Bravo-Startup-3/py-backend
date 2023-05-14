@@ -23,13 +23,13 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from .models import BrandProfile, InfluencerProfile, Campaign, Job
+from .models import BrandProfile, InfluencerProfile, Campaign, Job, Influencer, InfluencerPool
 from .permissions import IsBrandUser, IsInfluencerUser, IsOwnerOrReadOnly
 from .serializers import (BrandProfileSerializer, 
                     InfluencerProfileSerializer, ProfilePictureSerializer,
                         UserCreateSerializer, CampaignSerializer, JobSerializer,  
                           BrandProfileSerializer, InfluencerProfileSerializer,
-    BrandProfileUpdateSerializer, InfluencerProfileUpdateSerializer,
+    BrandProfileUpdateSerializer, InfluencerProfileUpdateSerializer, InfluencerPoolSerializer,
                           MyUserSerializer)
 
 from rest_framework import generics
@@ -46,6 +46,8 @@ from djoser.utils import encode_uid
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny
 from .emails.email import ActivationEmail, ConfirmationEmail
+from rest_framework import serializers
+
 
 User = get_user_model()
 
@@ -171,9 +173,12 @@ class ProfilePictureView(generics.ListCreateAPIView):
     serializer_class = ProfilePictureSerializer
 
 
+#CAMPAIGNS
+##################################################333
 class CampaignListCreateView(generics.ListCreateAPIView):
     queryset = Campaign.objects.all()
     serializer_class = CampaignSerializer
+    permission_classes = [permissions.IsAuthenticated, IsBrandUser]
 
     def perform_create(self, serializer):
         serializer.save(brand=self.request.user)
@@ -183,15 +188,53 @@ class CampaignRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Campaign.objects.all()
     serializer_class = CampaignSerializer
 
-
 class JobListCreateView(generics.ListCreateAPIView):
     queryset = Job.objects.all()
     serializer_class = JobSerializer
 
     def perform_create(self, serializer):
-        serializer.save(influencer=self.request.user)
+        # Only allow creating jobs for campaigns with available influencer pools
+        campaign_id = self.request.data['campaign']
+        campaign = Campaign.objects.get(id=campaign_id)
+        influencer_pool = InfluencerPool.objects.filter(campaign=campaign, status=InfluencerPool.Status.AVAILABLE).first()
+        if influencer_pool is None:
+            raise serializers.ValidationError('No available influencer for this campaign')
+        serializer.save(influencer=influencer_pool.influencer, campaign=campaign)
+        
+        # # select the influencer and create a conversation
+        # job = serializer.instance
+        # conversation = job.campaign.select_influencer(job.influencer)
+
+
 
 
 class JobRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Job.objects.all()
     serializer_class = JobSerializer
+
+
+class InfluencerPoolView(generics.ListAPIView):
+    serializer_class = InfluencerPoolSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        campaign_id = self.kwargs.get('campaign_id')
+        campaign = Campaign.objects.get(id=campaign_id)
+
+        if not campaign.is_active:
+            raise serializers.ValidationError('This campaign is no longer active')
+
+        if not campaign.is_in_progress:
+            raise serializers.ValidationError('This campaign is not yet in progress')
+
+        influencer_pools = InfluencerPool.objects.filter(campaign_id=campaign_id, status=InfluencerPool.Status.PENDING)
+        if not influencer_pools.exists():
+            raise serializers.ValidationError('No available influencer for this campaign')
+
+        # If the brand has already selected an influencer, filter out other influencer pools
+        if campaign.selected_influencer:
+            influencer_pools = influencer_pools.filter(influencer=campaign.selected_influencer)
+
+        return influencer_pools
+
+

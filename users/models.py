@@ -4,6 +4,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django_countries.fields import CountryField
 #from social.models import SocialMediaHandles
+#from chats.models import Conversation, Message
 
 import os
 from uuid import uuid4
@@ -206,14 +207,52 @@ class Campaign(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     brand = models.ForeignKey(User, on_delete=models.CASCADE, related_name='campaigns')
+    influencer_type = models.ManyToManyField(InfluencerType, blank=True)
+    niches = models.ManyToManyField(Niche, blank=True)
+    preferred_platforms = models.ManyToManyField(Platform, related_name='preferred_platform', blank=True)
+    audience_age_brackets = models.ManyToManyField(AgeBracket, blank=True)
+    audience_gender = models.ManyToManyField(Gender, blank=True)
     start_date = models.DateField()
     end_date = models.DateField()
     budget = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    # def select_influencer(self, influencer):
+    #     # create a conversation and add brand and influencer to it
+    #     conversation = Conversation.objects.create(name=f"{self.title} Conversation")
+    #     conversation.online.add(self.brand)
+    #     conversation.online.add(influencer)
+
+    #     # create a message from brand to influencer
+    #     message = Message.objects.create(
+    #         conversation=conversation,
+    #         from_user=self.brand,
+    #         to_user=influencer,
+    #         content=f"You have been selected for the {self.title} campaign.",
+    #     )
+
+    #     # return the conversation object
+    #     return conversation
+
+
+class InfluencerPool(models.Model):
+    influencer = models.ForeignKey(User, on_delete=models.CASCADE)
+    campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE)
+    selected_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='selected_influencer_pools')
+    campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE, related_name='influencer_pool')
+    influencer = models.ForeignKey(Influencer, on_delete=models.CASCADE, related_name='influencer_pool')
+
+    class Status(models.TextChoices):
+        PENDING = "PENDING"
+        APPROVED = "APPROVED"
+        REJECTED = "REJECTED"
+    
+    status = models.CharField(max_length=50, choices=Status.choices, default=Status.PENDING)
 
 class Job(models.Model):
-    title = models.CharField(max_length=255)
-    description = models.TextField()
     influencer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='jobs')
+    influencer_pool = models.OneToOneField(InfluencerPool, on_delete=models.CASCADE, default=None)
     start_date = models.DateField()
     end_date = models.DateField()
     compensation = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    

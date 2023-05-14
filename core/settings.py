@@ -49,6 +49,9 @@ INSTALLED_APPS = [
     
     #my apps
     'users',
+    'chats',
+    'wallet',
+    'blog',
     
     #third party
     'rest_authtoken',
@@ -223,7 +226,11 @@ REST_FRAMEWORK = {
     ],
     
     'DEFAULT_PERMISSION_CLASSES': [
+
         'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.IsAdminUser',
+        'users.permissions.IsOwnerOrReadOnly',
+        
     ],
     
     'DEFAULT_FILTER_BACKENDS': (
