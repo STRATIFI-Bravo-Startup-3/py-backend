@@ -168,6 +168,14 @@ class BrandProfileView(APIView):
         return Response(serializer.data)
 
 
+class BrandOnlyView(generics.RetrieveAPIView):
+    permission_classes = [permissions.IsAuthenticated, IsBrandUser]
+    serializer_class = MyUserSerializer
+
+    def get_object(self):
+        return self.request.user
+
+
 class InfluencerProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
