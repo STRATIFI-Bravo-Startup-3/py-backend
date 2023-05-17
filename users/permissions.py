@@ -1,7 +1,8 @@
 from rest_framework.permissions import BasePermission
 from rest_framework import permissions
 from django.contrib.auth import get_user_model
-User = get_user_model
+
+User = get_user_model()
 
 
 class IsBrandUser(BasePermission):
@@ -23,7 +24,10 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 
 class IsInfluencerUserOrReadonly(BasePermission):
     def has_permission(self, request, view):
-        return bool(request.method in permissions.SAFE_METHODS or (request.user and request.user.role == User.Role.INFLUENCER))
+        return bool(
+            request.method in permissions.SAFE_METHODS
+            or (request.user and request.user.role == User.Role.INFLUENCER)
+        )
 
     def has_object_permission(self, request, view, obj):
         return bool(request.user and request.user.role == User.Role.INFLUENCER)
@@ -31,7 +35,10 @@ class IsInfluencerUserOrReadonly(BasePermission):
 
 class IsBrandUserOrReadonly(BasePermission):
     def has_permission(self, request, view):
-        return bool(request.method in permissions.SAFE_METHODS or (request.user and request.user.role == User.Role.BRAND))
+        return bool(
+            request.method in permissions.SAFE_METHODS
+            or (request.user and request.user.role == User.Role.BRAND)
+        )
 
     def has_object_permission(self, request, view, obj):
         return bool(request.user and request.user.role == User.Role.BRAND)

@@ -1,7 +1,12 @@
 from django.http import request, HttpResponseRedirect, Http404
 from django.shortcuts import redirect, render, get_object_or_404
 from django.conf import settings
-from django.contrib.auth import authenticate, login, get_user_model, update_session_auth_hash
+from django.contrib.auth import (
+    authenticate,
+    login,
+    get_user_model,
+    update_session_auth_hash,
+)
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.tokens import default_token_generator
@@ -23,16 +28,31 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from .models import BrandProfile, InfluencerProfile, Campaign, Job, Influencer, InfluencerPool
+from .models import (
+    BrandProfile,
+    InfluencerProfile,
+    Campaign,
+    Job,
+    Influencer,
+    InfluencerPool,
+)
 from .permissions import IsBrandUser, IsInfluencerUser, IsOwnerOrReadOnly
-from .serializers import (BrandProfileSerializer, 
-                    InfluencerProfileSerializer, ProfilePictureSerializer,
-                        UserCreateSerializer, CampaignSerializer, JobSerializer,  
-                          BrandProfileSerializer, InfluencerProfileSerializer,
-    BrandProfileUpdateSerializer, InfluencerProfileUpdateSerializer, InfluencerPoolSerializer,
-                          MyUserSerializer)
+from .serializers import (
+    BrandProfileSerializer,
+    InfluencerProfileSerializer,
+    ProfilePictureSerializer,
+    UserCreateSerializer,
+    CampaignSerializer,
+    JobSerializer,
+    BrandProfileSerializer,
+    InfluencerProfileSerializer,
+    BrandProfileUpdateSerializer,
+    InfluencerProfileUpdateSerializer,
+    InfluencerPoolSerializer,
+    MyUserSerializer,
+)
 
-from rest_framework import generics
+from rest_framework import generics, request
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 from django.conf import settings
@@ -58,7 +78,9 @@ class UserCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer, *args, **kwargs):
         user = serializer.save(*args, **kwargs)
-        signals.user_registered.send(sender=self.__class__, user=user, request=self.request)
+        signals.user_registered.send(
+            sender=self.__class__, user=user, request=self.request
+        )
 
         context = {"user": user}
         to = [get_user_email(user)]
@@ -68,20 +90,21 @@ class UserCreateView(generics.CreateAPIView):
         elif settings.DJOSER.get("SEND_CONFIRMATION_EMAIL", False):
             ConfirmationEmail(self.request, context).send(to)
 
+
 #########################################
 
 
 class BrandOnlyView(generics.RetrieveAPIView):
-    permission_classes=[permissions.IsAuthenticated,IsBrandUser]
-    serializer_class=MyUserSerializer
+    permission_classes = [permissions.IsAuthenticated, IsBrandUser]
+    serializer_class = MyUserSerializer
 
     def get_object(self):
         return self.request.user
 
 
 class InfluencerOnlyView(generics.RetrieveAPIView):
-    permission_classes=[permissions.IsAuthenticated,IsInfluencerUser]
-    serializer_class=MyUserSerializer
+    permission_classes = [permissions.IsAuthenticated, IsInfluencerUser]
+    serializer_class = MyUserSerializer
 
     def get_object(self):
         return self.request.user
@@ -91,20 +114,24 @@ class BrandListCreateView(generics.ListCreateAPIView):
     queryset = BrandProfile.objects.all()
     serializer_class = BrandProfileSerializer
 
+
 class BrandDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = BrandProfile.objects.all()
     serializer_class = BrandProfileSerializer
-    
+
+
 class InfluencerListCreateView(generics.ListCreateAPIView):
     queryset = InfluencerProfile.objects.all()
     serializer_class = InfluencerProfileSerializer
+
 
 class InfluencerDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = InfluencerProfile.objects.all()
     serializer_class = InfluencerProfileSerializer
 
 
-#Need this for chat function
+# Need this for chat function
+
 
 class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericViewSet):
     # other viewset logic
@@ -128,7 +155,9 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
             User.objects.all(), many=True, context={"request": request}
         )
 
+
 ################################################3
+
 
 class BrandProfileView(APIView):
     permission_classes = [IsAuthenticated]
@@ -138,6 +167,7 @@ class BrandProfileView(APIView):
         serializer = BrandProfileSerializer(brand_profile)
         return Response(serializer.data)
 
+
 class InfluencerProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -146,6 +176,7 @@ class InfluencerProfileView(APIView):
         serializer = InfluencerProfileSerializer(influencer_profile)
         return Response(serializer.data)
 
+
 class BrandProfileUpdateView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = BrandProfileUpdateSerializer
@@ -153,27 +184,53 @@ class BrandProfileUpdateView(generics.UpdateAPIView):
     def get_object(self):
         return BrandProfile.objects.get(user=self.request.user)
 
-class InfluencerProfileUpdateView(generics.UpdateAPIView):
+
+class InfluencerProfileUpdateView(APIView):
+    """
+    Description - return response of updated data about the current login user
+    """
+
     permission_classes = [IsAuthenticated]
     serializer_class = InfluencerProfileUpdateSerializer
 
-    def get_object(self):
-        return InfluencerProfile.objects.get(user=self.request.user)
+    def put(self, request: request.Request) -> Response:
+        """Updates influencer profile data in full and partial"""
+
+        instance = InfluencerProfile.objects.filter(user=request.user).first()
+        serializers = self.serializer_class(
+            data=request.data,
+            instance=instance,
+            context={"request": request},
+            partial=True,
+        )
+        if serializers.is_valid(raise_exception=True):
+            serializers.save()
+            return Response(data=serializers.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializers.errors)
+
 
 class ProfilePictureUpdateView(generics.UpdateAPIView):
-    authentication_classes = [JWTAuthentication, ]
+    authentication_classes = [
+        JWTAuthentication,
+    ]
     permission_classes = [IsAuthenticated]
     serializer_class = ProfilePictureSerializer
 
     def get_object(self):
         return self.request.user
 
+
 class ProfilePictureView(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
     queryset = User.objects.all()
     serializer_class = ProfilePictureSerializer
 
+    def get_object(self):
+        return self.request.user
 
-#CAMPAIGNS
+
+# CAMPAIGNS
 ##################################################333
 class CampaignListCreateView(generics.ListCreateAPIView):
     queryset = Campaign.objects.all()
@@ -188,24 +245,27 @@ class CampaignRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Campaign.objects.all()
     serializer_class = CampaignSerializer
 
+
 class JobListCreateView(generics.ListCreateAPIView):
     queryset = Job.objects.all()
     serializer_class = JobSerializer
 
     def perform_create(self, serializer):
         # Only allow creating jobs for campaigns with available influencer pools
-        campaign_id = self.request.data['campaign']
+        campaign_id = self.request.data["campaign"]
         campaign = Campaign.objects.get(id=campaign_id)
-        influencer_pool = InfluencerPool.objects.filter(campaign=campaign, status=InfluencerPool.Status.AVAILABLE).first()
+        influencer_pool = InfluencerPool.objects.filter(
+            campaign=campaign, status=InfluencerPool.Status.AVAILABLE
+        ).first()
         if influencer_pool is None:
-            raise serializers.ValidationError('No available influencer for this campaign')
+            raise serializers.ValidationError(
+                "No available influencer for this campaign"
+            )
         serializer.save(influencer=influencer_pool.influencer, campaign=campaign)
-        
+
         # # select the influencer and create a conversation
         # job = serializer.instance
         # conversation = job.campaign.select_influencer(job.influencer)
-
-
 
 
 class JobRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
@@ -218,23 +278,27 @@ class InfluencerPoolView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        campaign_id = self.kwargs.get('campaign_id')
+        campaign_id = self.kwargs.get("campaign_id")
         campaign = Campaign.objects.get(id=campaign_id)
 
         if not campaign.is_active:
-            raise serializers.ValidationError('This campaign is no longer active')
+            raise serializers.ValidationError("This campaign is no longer active")
 
         if not campaign.is_in_progress:
-            raise serializers.ValidationError('This campaign is not yet in progress')
+            raise serializers.ValidationError("This campaign is not yet in progress")
 
-        influencer_pools = InfluencerPool.objects.filter(campaign_id=campaign_id, status=InfluencerPool.Status.PENDING)
+        influencer_pools = InfluencerPool.objects.filter(
+            campaign_id=campaign_id, status=InfluencerPool.Status.PENDING
+        )
         if not influencer_pools.exists():
-            raise serializers.ValidationError('No available influencer for this campaign')
+            raise serializers.ValidationError(
+                "No available influencer for this campaign"
+            )
 
         # If the brand has already selected an influencer, filter out other influencer pools
         if campaign.selected_influencer:
-            influencer_pools = influencer_pools.filter(influencer=campaign.selected_influencer)
+            influencer_pools = influencer_pools.filter(
+                influencer=campaign.selected_influencer
+            )
 
         return influencer_pools
-
-
