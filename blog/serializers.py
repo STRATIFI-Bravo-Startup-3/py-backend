@@ -1,13 +1,19 @@
-from rest_framework import serializers,viewsets
-from .models import BlogPost, Comment #,Category
+from rest_framework import serializers, viewsets
+from .models import BlogPost, Comment  # ,Category
 from users.models import User
 
-from rest_framework.serializers import HyperlinkedRelatedField,  HyperlinkedIdentityField,ModelSerializer, SerializerMethodField, ValidationError
+from rest_framework.serializers import (
+    HyperlinkedRelatedField,
+    HyperlinkedIdentityField,
+    ModelSerializer,
+    SerializerMethodField,
+    ValidationError,
+)
 from users.serializers import UserSerializer
 from django.contrib.contenttypes.models import ContentType
 
 
-#Post Serializers
+# Post Serializers
 # class BlogPostCreateUpdateSerializer(ModelSerializer):
 #     class Meta:
 #         model = BlogPost
@@ -21,10 +27,8 @@ from django.contrib.contenttypes.models import ContentType
 
 
 post_detail_url = HyperlinkedRelatedField(
-        read_only=True,
-        view_name='blog-posts:detail',
-        lookup_field='slug'
-        )
+    read_only=True, view_name="blog-posts:detail", lookup_field="slug"
+)
 
 
 class BlogPostDetailSerializer(ModelSerializer):
@@ -33,20 +37,20 @@ class BlogPostDetailSerializer(ModelSerializer):
     image = SerializerMethodField()
     html = SerializerMethodField()
     comments = SerializerMethodField()
-    
+
     class Meta:
         model = BlogPost
         fields = [
-            'id',
-            'url',
-            'user',
-            'title',
-            'slug',
-            'content',
-            'html',
-            'publish',
-            'image',
-            'comments',
+            "id",
+            "url",
+            "user",
+            "title",
+            "slug",
+            "content",
+            "html",
+            "publish",
+            "image",
+            "comments",
         ]
 
     def get_html(self, obj):
@@ -64,40 +68,46 @@ class BlogPostDetailSerializer(ModelSerializer):
         comments = CommentSerializer(c_qs, many=True).data
         return comments
 
+
 class BlogPostListSerializer(ModelSerializer):
-    url = serializers.HyperlinkedRelatedField(view_name="blogpost_post_detail",read_only=True)
+    url = serializers.HyperlinkedRelatedField(
+        view_name="blogpost_post_detail", read_only=True
+    )
     owner = UserSerializer(read_only=True)
     lookup_field = "slug"
+
     class Meta:
         model = BlogPost
         fields = [
-            'image',
-            'url',
-            'owner',
-            'title',
-            'content',
-            'created_at',
-            'slug',
-            
+            "image",
+            "url",
+            "owner",
+            "title",
+            "content",
+            "created_at",
+            "slug",
         ]
 
-#Comment Serializer
-def create_comment_serializer(model_type='post', slug=None, parent_id=None, user=None):
+
+# Comment Serializer
+def create_comment_serializer(model_type="post", slug=None, parent_id=None, user=None):
     class CommentCreateSerializer(ModelSerializer):
         class Meta:
+            ref_name = "commentcreatefirst"
             model = Comment
             fields = [
-                'id',
-                'content',
-                'created',
+                "id",
+                "content",
+                "created",
             ]
+
         def __init__(self, *args, **kwargs):
             self.model_type = model_type
             self.slug = slug
             self.parent_obj = None
             if parent_id:
                 parent_qs = Comment.objects.filter(id=parent_id)
-                if parent_qs.exists() and parent_qs.count() ==1:
+                if parent_qs.exists() and parent_qs.count() == 1:
                     self.parent_obj = parent_qs.first()
             return super(CommentCreateSerializer, self).__init__(*args, **kwargs)
 
@@ -122,96 +132,98 @@ def create_comment_serializer(model_type='post', slug=None, parent_id=None, user
             slug = self.slug
             parent_obj = self.parent_obj
             comment = Comment.objects.create_by_model_type(
-                    model_type, slug, content, main_user,
-                    parent_obj=parent_obj,
-                    )
+                model_type,
+                slug,
+                content,
+                main_user,
+                parent_obj=parent_obj,
+            )
             return comment
 
     return CommentCreateSerializer
 
 
-
 class CommentSerializer(ModelSerializer):
     reply_count = SerializerMethodField()
+
     class Meta:
         model = Comment
         fields = [
-            'id',
-            'content_type',
-            'object_id',
-            'parent',
-            'content',
-            'reply_count',
-            'created',
+            "id",
+            "content_type",
+            "object_id",
+            "parent",
+            "content",
+            "reply_count",
+            "created",
         ]
-    
+
     def get_reply_count(self, obj):
         if obj.is_parent:
             return obj.children().count()
         return 0
-
 
 
 class CommentListSerializer(ModelSerializer):
-    url = HyperlinkedIdentityField(
-        view_name='comments-api:thread')
+    url = HyperlinkedIdentityField(view_name="comments-api:thread")
     reply_count = SerializerMethodField()
+
     class Meta:
         model = Comment
         fields = [
-            'url',
-            'id',
+            "url",
+            "id",
             # 'content_type',
             # 'object_id',
             # 'parent',
-            'content',
-            'reply_count',
-            'created',
+            "content",
+            "reply_count",
+            "created",
         ]
-    
+
     def get_reply_count(self, obj):
         if obj.is_parent:
             return obj.children().count()
         return 0
-
 
 
 class CommentChildSerializer(ModelSerializer):
     user = UserSerializer(read_only=True)
+
     class Meta:
         model = Comment
         fields = [
-            'id',
-            'user',
-            'content',
-            'created',
+            "id",
+            "user",
+            "content",
+            "created",
         ]
-
 
 
 class CommentDetailSerializer(ModelSerializer):
     user = UserSerializer(read_only=True)
     reply_count = SerializerMethodField()
     content_object_url = SerializerMethodField()
-    replies =   SerializerMethodField()
+    replies = SerializerMethodField()
+
     class Meta:
         model = Comment
         fields = [
-            'id',
-            'user',
+            "id",
+            "user",
             #'content_type',
             #'object_id',
-            'content',
-            'reply_count',
-            'replies',
-            'created',
-            'content_object_url',
+            "content",
+            "reply_count",
+            "replies",
+            "created",
+            "content_object_url",
         ]
         read_only_fields = [
             #'content_type',
             #'object_id',
-            'reply_count',
-            'replies',
+            "reply_count",
+            "replies",
         ]
 
     def get_content_object_url(self, obj):
@@ -229,7 +241,8 @@ class CommentDetailSerializer(ModelSerializer):
         if obj.is_parent:
             return obj.children().count()
         return 0
-    
+
+
 class PostSerializer(serializers.ModelSerializer):
     # owner = serializers.HyperlinkedRelatedField(
     #     queryset=User.objects.all(), view_name="api_user_detail", lookup_field="email", read_only = False
@@ -239,7 +252,8 @@ class PostSerializer(serializers.ModelSerializer):
         model = BlogPost
         fields = "__all__"
         readonly = ["modified_at", "created_at"]
-    
+
+
 class PostDetailSerializer(PostSerializer):
     comments = CommentSerializer(many=True)
 
@@ -259,6 +273,7 @@ class PostDetailSerializer(PostSerializer):
 
         return instance
 
+
 class PostViewSet(viewsets.ModelViewSet):
     permission_classes = []
     queryset = BlogPost.objects.all()
@@ -271,30 +286,31 @@ class PostViewSet(viewsets.ModelViewSet):
 
 class CommentListCreateSerializer(CommentSerializer):
     class Meta(CommentSerializer.Meta):
-        fields = CommentSerializer.Meta.fields + ['parent_id']
+        fields = CommentSerializer.Meta.fields + ["parent_id"]
 
     parent_id = serializers.IntegerField(write_only=True, required=False)
 
     def create(self, validated_data):
-        parent_id = validated_data.pop('parent_id', None)
+        parent_id = validated_data.pop("parent_id", None)
         if parent_id:
             parent_comment = Comment.objects.get(id=parent_id)
-            validated_data['parent'] = parent_comment
+            validated_data["parent"] = parent_comment
         return super().create(validated_data)
 
 
 class CommentEditSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ('id', 'content')
+        fields = ("id", "content")
+
 
 # class CategorySerializer(serializers.ModelSerializer):
-    # owner = serializers.ReadOnlyField(source='owner.username')
-    # posts = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+# owner = serializers.ReadOnlyField(source='owner.username')
+# posts = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
-    # class Meta:
-    #     model = Category
-    #     fields = ['id', 'name', 'owner', 'posts']
+# class Meta:
+#     model = Category
+#     fields = ['id', 'name', 'owner', 'posts']
 
 # class BlogPostSerializer(serializers.ModelSerializer):
 #     owner = serializers.ReadOnlyField(source='owner.username')
@@ -302,16 +318,14 @@ class CommentEditSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = BlogPost
 #         fields = ['id', 'title', 'body', 'owner']
-        
-        
-        
+
+
 # class CommentSerializer(serializers.ModelSerializer):
 #     owner = serializers.ReadOnlyField(source='owner.username')
 
 #     class Meta:
 #         model  = Comments
 #         fields = ['id', 'body', 'owner', 'post']
-
 
 
 # class UserSerializer(serializers.ModelSerializer):
