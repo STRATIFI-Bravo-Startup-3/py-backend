@@ -1,4 +1,4 @@
-from django.http import request, HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import redirect, render, get_object_or_404
 from django.conf import settings
 from django.contrib.auth import (
@@ -67,7 +67,7 @@ from rest_framework import generics, status
 from rest_framework.permissions import AllowAny
 from .emails.email import ActivationEmail, ConfirmationEmail
 from rest_framework import serializers
-
+from django.conf import settings
 
 User = get_user_model()
 
