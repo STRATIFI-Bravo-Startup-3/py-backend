@@ -94,6 +94,7 @@ class UserCreateView(generics.CreateAPIView):
 #########################################
 
 
+# This is a comment
 class BrandOnlyView(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated, IsBrandUser]
     serializer_class = MyUserSerializer
@@ -193,6 +194,7 @@ class BrandProfileUpdateView(generics.UpdateAPIView):
         return BrandProfile.objects.get(user=self.request.user)
 
 
+# updating user
 class InfluencerProfileUpdateView(APIView):
     """
     Description - return response of updated data about the current login user
