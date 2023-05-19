@@ -29,7 +29,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -40,68 +40,66 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    
-    #my apps
-    'users',
-    'chats',
-    'wallet',
-    'blog',
-    
-    #third party
-    'rest_authtoken',
-    'rest_framework',
-    'rest_framework.authtoken',
-    'rest_framework_simplejwt',
-    'corsheaders',
-    'djoser',
-    'drf_yasg',
-    'channels',
-    'channels_redis',
-    'ckeditor',
-    
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django.contrib.sites",
+    # my apps
+    "users",
+    "chats",
+    "wallet",
+    "blog",
+    # third party
+    "rest_authtoken",
+    "rest_framework",
+    "rest_framework.authtoken",
+    "rest_framework_simplejwt",
+    "corsheaders",
+    "djoser",
+    "drf_yasg",
+    "channels",
+    "channels_redis",
+    "ckeditor",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'core.urls'
+ROOT_URLCONF = "core.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            os.path.join(BASE_DIR, 'build'),
-            ],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [
+            os.path.join(BASE_DIR, "build"),
+        ],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-'''    
+"""    
 DEBUG = strtobool(environ.get('DEBUG', 'False'))
 # Get the value of DEBUG from the environment variable
 DEBUG = strtobool(environ.get('DEBUG', 'False'))
@@ -125,19 +123,19 @@ else:
             'PORT': '5432',
         }
     }
-'''
+"""
 
 
-WSGI_APPLICATION = 'core.wsgi.application'
+WSGI_APPLICATION = "core.wsgi.application"
 
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
 
@@ -147,16 +145,16 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -164,9 +162,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 
@@ -176,22 +174,22 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = '/static/'
-MEDIA_URL = '/media/'
-STATICFILES_DIR = [os.path.join(BASE_DIR, 'build/static')]
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_URL = "/static/"
+MEDIA_URL = "/media/"
+STATICFILES_DIR = [os.path.join(BASE_DIR, "build/static")]
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "users.User"
 
-ACCOUNT_UNIQUE_EMAIL=True
+ACCOUNT_UNIQUE_EMAIL = True
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -200,53 +198,48 @@ AWS_QUERYSTRING_AUTH = False
 
 CKEDITOR_IMAGE_BACKEND = "pillow"
 CKEDITOR_FORCE_JPEG_COMPRESSION = True
-CKEDITOR_UPLOAD_PATH = 'blogsupport/'
+CKEDITOR_UPLOAD_PATH = "blogsupport/"
 CKEDITOR_ALLOW_NONIMAGE_FILES = True
-CKEDITOR_JQUERY_URL = '//ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js'
+CKEDITOR_JQUERY_URL = "//ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"
 
-CKEDITOR_FILENAME_GENERATOR = 'utils.get_filename'
+CKEDITOR_FILENAME_GENERATOR = "utils.get_filename"
 
 
 CKEDITOR_CONFIGS = {
-    'default': {
-        'toolbar': "full",
-        'height': 300,
-        'width': '100%',
+    "default": {
+        "toolbar": "full",
+        "height": 300,
+        "width": "100%",
     },
 }
 
-#rest authentication classes
+# rest authentication classes
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication', 
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.BasicAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
-    
-    'DEFAULT_PERMISSION_CLASSES': [
-
-        'rest_framework.permissions.IsAuthenticated',
-        'rest_framework.permissions.IsAdminUser',
-        'users.permissions.IsOwnerOrReadOnly',
-        
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+        "rest_framework.permissions.IsAdminUser",
+        "users.permissions.IsOwnerOrReadOnly",
     ],
-    
-    'DEFAULT_FILTER_BACKENDS': (
-        'rest_framework.filters.SearchFilter',
-        'django_filters.rest_framework.DjangoFilterBackend',
+    "DEFAULT_FILTER_BACKENDS": (
+        "rest_framework.filters.SearchFilter",
+        "django_filters.rest_framework.DjangoFilterBackend",
     ),
 }
 
 
-
 LOGOUT_REDIRECT_URL = "login"
 
-#cors header
+# cors header
 CORS_ALLOWED_ORIGINS = [
-    #"https://example.com",
-    #"https://sub.example.com",
+    # "https://example.com",
+    # "https://sub.example.com",
     "http://localhost:8080",
     "http://127.0.0.1:8000",
 ]
@@ -254,20 +247,16 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_ALL_ORIGINS = True
 
 
-
-
-
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-#EMAIL_HOST = os.environ.get('EMAIL_HOST')
-#EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER') 
-#EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-#25, 587	(for unencrypted/TLS connections)
-#465	(for SSL connections)
-EMAIL_PORT = 587 
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = os.environ.get('EMAIL_HOST')
+# EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+# EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+# 25, 587	(for unencrypted/TLS connections)
+# 465	(for SSL connections)
+EMAIL_PORT = 587
 
 EMAIL_USE_TLS = True
-
 
 
 # Wallet
@@ -276,8 +265,7 @@ EMAIL_USE_TLS = True
 # PAYSTACK_PUBLIC_KEY = os.environ.get('PAYSTACK_PUBLIC_KEY', 'default_public_key')
 
 
-
-#Chat Function
+# Chat Function
 ASGI_APPLICATION = "asgi.application"
 
 
@@ -293,19 +281,12 @@ ASGI_APPLICATION = "asgi.application"
 
 
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
     #'core.authentication.CustomModelBackend',
     # 'account.authentication.EmailAuthBackend',
-    
-    
     #'social_core.backends.google.GoogleOAuth2',
-    
-    
 ]
-
-
-
 
 
 TWITTER_API_KEY = "TWITTER_API_KEY"
@@ -314,91 +295,88 @@ TWITTER_ACCESS_TOKEN = "TWITTER_ACCESS_TOKEN"
 TWITTER_ACCESS_TOKEN_SECRET = "TWITTER_ACCESS_TOKEN_SECRET"
 
 
-CELERY_BROKER_URL = 'redis://localhost:6379'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_BROKER_URL = "redis://localhost:6379"
+CELERY_RESULT_BACKEND = "redis://localhost:6379"
 
 CELERY_BEAT_SCHEDULE = {
-    'update_twitter_followers': {
-        'task': 'socialmedia.tasks.update_twitter_followers',
-        'schedule': 60 * 60 # Run every hour
+    "update_twitter_followers": {
+        "task": "socialmedia.tasks.update_twitter_followers",
+        "schedule": 60 * 60,  # Run every hour
     }
 }
 
-#work on this
-#GDAL_LIBRARY_PATH = '/path/to/gdal/library.so'
-#sample development server, ensure to check
-#GDAL_LIBRARY_PATH = '/usr/lib/libgdal.so'
+# work on this
+# GDAL_LIBRARY_PATH = '/path/to/gdal/library.so'
+# sample development server, ensure to check
+# GDAL_LIBRARY_PATH = '/usr/lib/libgdal.so'
 
 
 SIMPLE_JWT = {
-   'AUTH_HEADER_TYPES': ('JWT',),
-   'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-   'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-   'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    "AUTH_HEADER_TYPES": ("JWT",),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
 }
 
 DJOSER = {
-    'LOGIN_FIELD': 'email',
-    'LOGIN_FIELD': 'username',
+    "LOGIN_FIELD": "email",
+    "LOGIN_FIELD": "username",
     #'LOGIN_FIELD': ['email','username'],
-        
-    'USER_CREATE_PASSWORD_RETYPE': True,
-    'USERNAME_CHANGED_EMAIL_CONFIRMATION': True,
-    'PASSWORD_CHANGED_EMAIL_CONFIRMATION': True,
-    'SEND_CONFIRMATION_EMAIL': True,
-    'SET_PASSWORD_RETYPE': True,
-    'SET_USERNAME_RETYPE': True,
-    'PASSWORD_RESET_CONFIRM_URL': 'password/reset/confirm/{uid}/{token}',
-    'USERNAME_RESET_CONFIRM_URL': 'username/reset/confirm/{uid}/{token}',
-    'ACTIVATION_URL': 'activate/{uid}/{token}',
-    'ACTIVATION_EXPIRATION_DELTA': timedelta(days=1),
-    'SEND_ACTIVATION_EMAIL': True,    
-    'SERIALIZERS': {
-        'user': 'users.serializers.MyUserSerializer',
-        'user_create': 'users.serializers.UserCreateSerializer',
-        'user_delete': 'djoser.serializers.UserDeleteSerializer',
+    "USER_CREATE_PASSWORD_RETYPE": True,
+    "USERNAME_CHANGED_EMAIL_CONFIRMATION": True,
+    "PASSWORD_CHANGED_EMAIL_CONFIRMATION": True,
+    "SEND_CONFIRMATION_EMAIL": True,
+    "SET_PASSWORD_RETYPE": True,
+    "SET_USERNAME_RETYPE": True,
+    "PASSWORD_RESET_CONFIRM_URL": "password/reset/confirm/{uid}/{token}",
+    "USERNAME_RESET_CONFIRM_URL": "username/reset/confirm/{uid}/{token}",
+    "ACTIVATION_URL": "activate/{uid}/{token}",
+    "ACTIVATION_EXPIRATION_DELTA": timedelta(days=1),
+    "SEND_ACTIVATION_EMAIL": True,
+    "SERIALIZERS": {
+        "user": "users.serializers.MyUserSerializer",
+        "user_create": "users.serializers.UserCreateSerializer",
+        "user_delete": "djoser.serializers.UserDeleteSerializer",
     },
-    'EMAIL': {
-        'activation': 'users.emails.email.ActivationEmail',
-        'confirmation': 'users.emails.email.ConfirmationEmail',
-        'password_reset': 'users.emails.email.PasswordResetEmail',
-        'password_changed_confirmation': 'users.emails.email.PasswordChangedConfirmationEmail',
-        'username_changed_confirmation': 'users.emails.email.UsernameChangedConfirmationEmail',
-        'username_reset': 'users.emails.email.UsernameResetEmail',
+    "EMAIL": {
+        "activation": "users.emails.email.ActivationEmail",
+        "confirmation": "users.emails.email.ConfirmationEmail",
+        "password_reset": "users.emails.email.PasswordResetEmail",
+        "password_changed_confirmation": "users.emails.email.PasswordChangedConfirmationEmail",
+        "username_changed_confirmation": "users.emails.email.UsernameChangedConfirmationEmail",
+        "username_reset": "users.emails.email.UsernameResetEmail",
     },
 }
 
 
 SWAGGER_SETTINGS = {
-    
-    'VALIDATOR_URL': 'http://localhost:8189',
-    
+    "VALIDATOR_URL": "http://localhost:8189",
 }
 
 SITE_ID = 1
 
 # Google OAuth2 configuration
 SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'SCOPE': ['profile', 'email'],
-        'AUTH_PARAMS': {'access_type': 'online'},
-        'APP': {
-            'client_id': 'your_client_id',
-            'secret': 'your_client_secret',
-            'key': ''
-        }
+    "google": {
+        "SCOPE": ["profile", "email"],
+        "AUTH_PARAMS": {"access_type": "online"},
+        "APP": {
+            "client_id": os.environ.get("client_id"),
+            "secret": os.environ.get("secret"),
+            "key": "",
+        },
     }
 }
 
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_USERNAME_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_SESSION_REMEMBER = True
 ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
-ACCOUNT_ADAPTER = 'core.adapter.CustomAccountAdapter'
-SOCIALACCOUNT_ADAPTER = 'core.adapter.CustomSocialAccountAdapter'
+ACCOUNT_ADAPTER = "core.adapter.CustomAccountAdapter"
+SOCIALACCOUNT_ADAPTER = "core.adapter.CustomSocialAccountAdapter"
 SOCIALACCOUNT_QUERY_EMAIL = True
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
