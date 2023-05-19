@@ -94,6 +94,7 @@ class UserCreateView(generics.CreateAPIView):
 #########################################
 
 
+# This is a comment
 class BrandOnlyView(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated, IsBrandUser]
     serializer_class = MyUserSerializer
