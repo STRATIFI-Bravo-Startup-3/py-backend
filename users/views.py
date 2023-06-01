@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.conf import settings
 from django.contrib.auth import (
@@ -240,20 +240,69 @@ class ProfilePictureView(generics.ListCreateAPIView):
         return self.request.user
 
 
+# data deletion callback
+def data_deletion_callback(request):
+    if request.method == "POST":
+        user_id = request.POST.get("user_id", "")
+        try:
+            User.objects.filter(id=user_id).first().delete()
+            return HttpResponse("Data deletion successful")
+        except Exception as e:
+            return HttpResponse("Data deletion failed" + str(e))
+    else:
+        return HttpResponse("Invalid request method")
+
+
 # CAMPAIGNS
 ##################################################333
 class CampaignListCreateView(generics.ListCreateAPIView):
     queryset = Campaign.objects.all()
     serializer_class = CampaignSerializer
-    permission_classes = [permissions.IsAuthenticated, IsBrandUser]
+    permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
         serializer.save(brand=self.request.user)
 
 
-class CampaignRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+class CampaignUpdateDestroyView(APIView):
+    """View to update and delete a campaign making sure only the user created that can do so"""
+
+    permission_classes = [permissions.IsAuthenticated, IsBrandUser]
+    serializer_class = CampaignSerializer
+
+    def put(self, request, pk):
+        """Updating Campaign created by a user"""
+        instance = Campaign.objects.get(brand=request.user, pk=pk)
+        serializers = self.serializer_class(
+            instance=instance,
+            data=request.data,
+            partial=True,
+            context={"request": request},
+        )
+        if serializers.is_valid(raise_exception=True):
+            serializers.save(brand=request.user)
+            return Response(data=serializers.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializers.errors)
+
+    def delete(self, request, pk):
+        """Delete Campaign made by a user"""
+        try:
+            instance = Campaign.objects.filter(brand=request.user, pk=pk)
+            instance.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except:
+            raise ("The requested data is not found")
+
+
+class CampaignRetrieveView(generics.RetrieveAPIView):
+    """Retrieve a specific campaign"""
+
+    permission_classes = [permissions.IsAuthenticated]
     queryset = Campaign.objects.all()
     serializer_class = CampaignSerializer
+
+    ####################################################################
 
 
 class JobListCreateView(generics.ListCreateAPIView):
@@ -312,3 +361,8 @@ class InfluencerPoolView(generics.ListAPIView):
             )
 
         return influencer_pools
+
+
+class CreateInfluencerPool(generics.CreateAPIView):
+    serializer_class = InfluencerPoolSerializer
+    queryset = InfluencerPool.objects.all()

@@ -18,10 +18,13 @@ from .views import (
     BrandProfileView,
     InfluencerProfileView,
     CampaignListCreateView,
-    CampaignRetrieveUpdateDestroyView,
+    # CampaignRetrieveUpdateDestroyView,
+    CampaignUpdateDestroyView,
     InfluencerPoolView,
+    CreateInfluencerPool,
     JobListCreateView,
     JobRetrieveUpdateDestroyView,
+    data_deletion_callback,
 )
 
 urlpatterns = [
@@ -54,7 +57,7 @@ urlpatterns = [
     path("campaigns/", CampaignListCreateView.as_view(), name="campaigns_list_create"),
     path(
         "campaigns/<int:pk>/",
-        CampaignRetrieveUpdateDestroyView.as_view(),
+        CampaignUpdateDestroyView.as_view(),
         name="campaigns_retrieve_update_destroy",
     ),
     path("jobs/", JobListCreateView.as_view(), name="jobs_list_create"),
@@ -67,5 +70,9 @@ urlpatterns = [
         "campaigns/<int:campaign_id>/influencer-pool/",
         InfluencerPoolView.as_view(),
         name="influencer_pool_list",
+    ),
+    path("influencerpool/", CreateInfluencerPool.as_view(), name="create-pool"),
+    path(
+        "data-deletion-callback/", data_deletion_callback, name="data_deletion_callback"
     ),
 ]
