@@ -67,7 +67,7 @@ urlpatterns = [
         name="jobs_retrieve_update_destroy",
     ),
     path(
-        "campaigns/<int:campaign_id>/influencer-pool/",
+        "campaigns/<int:campaign_id>/influencerpool/",
         InfluencerPoolView.as_view(),
         name="influencer_pool_list",
     ),

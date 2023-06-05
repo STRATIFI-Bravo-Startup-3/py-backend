@@ -27,6 +27,7 @@ from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, UpdateMode
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.exceptions import ValidationError
 
 from .models import (
     BrandProfile,
@@ -261,7 +262,11 @@ class CampaignListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
-        serializer.save(brand=self.request.user)
+        try:
+            brand_profile = BrandProfile.objects.get(user=self.request.user)
+            serializer.save(brand=brand_profile)
+        except BrandProfile.DoesNotExist:
+            raise ValidationError("Brand Does not exist")
 
 
 class CampaignUpdateDestroyView(APIView):
@@ -363,6 +368,27 @@ class InfluencerPoolView(generics.ListAPIView):
         return influencer_pools
 
 
-class CreateInfluencerPool(generics.CreateAPIView):
+class CreateInfluencerPool(APIView):
     serializer_class = InfluencerPoolSerializer
-    queryset = InfluencerPool.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        campaign_id = request.data.get("campaign", {})
+        influencer = InfluencerProfile.objects.get(user=request.user)
+
+        if InfluencerPool.objects.filter(
+            campaign=campaign_id, influencer=influencer
+        ).exists():
+            raise ValidationError("Influencer already in this pool")
+        serializer = self.serializer_class(
+            data=request.data, context={"request": request.user}
+        )
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            response = {
+                "status": "Influencer has been added to the pool",
+                "data": serializer.data,
+            }
+            return Response(data=response, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors)
