@@ -1,8 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django_countries.fields import CountryField
+
+# from chats.models import Message, Conversation
+
 
 # from social.models import SocialMediaHandles
 # from chats.models import Conversation, Message
@@ -121,21 +122,10 @@ class Brand(User):
         return "Only for brands"
 
 
-# @receiver(post_save, sender=Brand)
-# def create_user_profile(sender, instance, created, **kwargs):
-#     if created and instance.role == User.Role.BRAND:
-#         brand = BrandProfile.objects.create(user=instance)
-#         if instance.company_name or instance.contact_person:
-#             brand.company_name = instance.company_name
-#             brand.contact_person = instance.contact_person
-#             brand.save()
-
-
 class BrandProfile(models.Model):
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="brand_profile", unique=True
     )
-    brand_id = models.IntegerField(null=True, blank=True)
     RATING_CHOICES = (
         (1, 1),
         (2, 2),
@@ -204,7 +194,6 @@ class InfluencerProfile(models.Model):
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="influencer_profile", unique=True
     )
-    influencer_id = models.IntegerField(null=True, blank=True)
     RATING_CHOICES = (
         (1, 1),
         (2, 2),
@@ -250,21 +239,13 @@ class InfluencerProfile(models.Model):
         return str(self.first_name)
 
 
-# @receiver(post_save, sender=Influencer)
-# def create_user_profile(sender, instance, created, **kwargs):
-#     if created and instance.role == User.Role.INFLUENCER:
-#         influencer = InfluencerProfile.objects.create(user=instance)
-#         if instance.first_name or instance.last_name or instance.birthday:
-#             influencer.first_name = instance.first_name
-#             influencer.last_name = instance.last_name
-#             influencer.birthday = instance.birthday
-#             influencer.save()
-
-
 class Campaign(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
-    brand = models.ForeignKey(User, on_delete=models.CASCADE, related_name="campaigns")
+    # update foreign key from user to  brandprofile
+    brand = models.ForeignKey(
+        BrandProfile, on_delete=models.CASCADE, related_name="campaigns"
+    )
     influencer_type = models.ManyToManyField(InfluencerType, blank=True)
     niches = models.ManyToManyField(Niche, blank=True)
     preferred_platforms = models.ManyToManyField(
@@ -290,15 +271,15 @@ class Campaign(models.Model):
     #         content=f"You have been selected for the {self.title} campaign.",
     #     )
 
-    #     # return the conversation object
-    #     return conversation
+    # # return the conversation object
+    # return conversation
 
 
 class InfluencerPool(models.Model):
-    influencer = models.ForeignKey(User, on_delete=models.CASCADE)
+    influencer = models.ForeignKey(InfluencerProfile, on_delete=models.CASCADE)
     campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE)
     selected_by = models.ForeignKey(
-        User,
+        InfluencerProfile,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -307,14 +288,15 @@ class InfluencerPool(models.Model):
     campaign = models.ForeignKey(
         Campaign, on_delete=models.CASCADE, related_name="influencer_pool"
     )
-    influencer = models.ForeignKey(
-        Influencer, on_delete=models.CASCADE, related_name="influencer_pool"
+    influencer_profile = models.ForeignKey(
+        Influencer, on_delete=models.CASCADE, related_name="influencer_pool", null=True
     )
 
     class Status(models.TextChoices):
         PENDING = "PENDING"
         APPROVED = "APPROVED"
         REJECTED = "REJECTED"
+        AVAILABLE = "AVAILABLE"
 
     status = models.CharField(
         max_length=50, choices=Status.choices, default=Status.PENDING
@@ -322,7 +304,9 @@ class InfluencerPool(models.Model):
 
 
 class Job(models.Model):
-    influencer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="jobs")
+    influencer = models.ForeignKey(
+        InfluencerProfile, on_delete=models.CASCADE, related_name="jobs"
+    )
     influencer_pool = models.OneToOneField(
         InfluencerPool, on_delete=models.CASCADE, default=None
     )

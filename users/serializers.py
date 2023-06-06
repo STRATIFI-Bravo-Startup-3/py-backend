@@ -94,7 +94,7 @@ class InfluencerProfileSerializer(CountryFieldMixin, serializers.ModelSerializer
     user = MyUserSerializer()
 
     class Meta:
-        model = BrandProfile
+        model = InfluencerProfile
         fields = "__all__"
 
 
@@ -133,6 +133,7 @@ class ProfilePictureSerializer(serializers.ModelSerializer):
 
 
 class CampaignSerializer(serializers.ModelSerializer):
+    # comment this because foreign key relationship has been updated
     brand = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.filter(role=User.Role.BRAND)
     )
@@ -169,18 +170,6 @@ class InfluencerPoolSerializer(serializers.ModelSerializer):
     class Meta:
         model = InfluencerPool
         fields = ["id", "influencer", "campaign"]
-
-    def validate(self, data):
-        # Check if influencer is already in pool for this campaign
-        influencer = data["influencer"]
-        campaign = data["campaign"]
-        if InfluencerPool.objects.filter(
-            influencer=influencer, campaign=campaign
-        ).exists():
-            raise serializers.ValidationError(
-                "Influencer already exists in pool for this campaign"
-            )
-        return data
 
 
 class JobSerializer(serializers.ModelSerializer):

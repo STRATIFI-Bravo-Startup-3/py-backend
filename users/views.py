@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.conf import settings
 from django.contrib.auth import (
@@ -27,6 +27,7 @@ from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, UpdateMode
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.exceptions import ValidationError
 
 from .models import (
     BrandProfile,
@@ -240,20 +241,73 @@ class ProfilePictureView(generics.ListCreateAPIView):
         return self.request.user
 
 
+# data deletion callback
+def data_deletion_callback(request):
+    if request.method == "POST":
+        user_id = request.POST.get("user_id", "")
+        try:
+            User.objects.filter(id=user_id).first().delete()
+            return HttpResponse("Data deletion successful")
+        except Exception as e:
+            return HttpResponse("Data deletion failed" + str(e))
+    else:
+        return HttpResponse("Invalid request method")
+
+
 # CAMPAIGNS
 ##################################################333
 class CampaignListCreateView(generics.ListCreateAPIView):
     queryset = Campaign.objects.all()
     serializer_class = CampaignSerializer
-    permission_classes = [permissions.IsAuthenticated, IsBrandUser]
+    permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
-        serializer.save(brand=self.request.user)
+        try:
+            brand_profile = BrandProfile.objects.get(user=self.request.user)
+            serializer.save(brand=brand_profile)
+        except BrandProfile.DoesNotExist:
+            raise ValidationError("Brand Does not exist")
 
 
-class CampaignRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+class CampaignUpdateDestroyView(APIView):
+    """View to update and delete a campaign making sure only the user created that can do so"""
+
+    permission_classes = [permissions.IsAuthenticated, IsBrandUser]
+    serializer_class = CampaignSerializer
+
+    def put(self, request, pk):
+        """Updating Campaign created by a user"""
+        instance = Campaign.objects.get(brand=request.user, pk=pk)
+        serializers = self.serializer_class(
+            instance=instance,
+            data=request.data,
+            partial=True,
+            context={"request": request},
+        )
+        if serializers.is_valid(raise_exception=True):
+            serializers.save(brand=request.user)
+            return Response(data=serializers.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializers.errors)
+
+    def delete(self, request, pk):
+        """Delete Campaign made by a user"""
+        try:
+            instance = Campaign.objects.filter(brand=request.user, pk=pk)
+            instance.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except:
+            raise ("The requested data is not found")
+
+
+class CampaignRetrieveView(generics.RetrieveAPIView):
+    """Retrieve a specific campaign"""
+
+    permission_classes = [permissions.IsAuthenticated]
     queryset = Campaign.objects.all()
     serializer_class = CampaignSerializer
+
+    ####################################################################
 
 
 class JobListCreateView(generics.ListCreateAPIView):
@@ -312,3 +366,29 @@ class InfluencerPoolView(generics.ListAPIView):
             )
 
         return influencer_pools
+
+
+class CreateInfluencerPool(APIView):
+    serializer_class = InfluencerPoolSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        campaign_id = request.data.get("campaign", {})
+        influencer = InfluencerProfile.objects.get(user=request.user)
+
+        if InfluencerPool.objects.filter(
+            campaign=campaign_id, influencer=influencer
+        ).exists():
+            raise ValidationError("Influencer already in this pool")
+        serializer = self.serializer_class(
+            data=request.data, context={"request": request.user}
+        )
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            response = {
+                "status": "Influencer has been added to the pool",
+                "data": serializer.data,
+            }
+            return Response(data=response, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors)

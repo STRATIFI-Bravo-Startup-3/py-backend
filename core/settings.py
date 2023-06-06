@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
+    "allauth.socialaccount.providers.facebook",
 ]
 
 MIDDLEWARE = [
@@ -365,9 +366,20 @@ SOCIALACCOUNT_PROVIDERS = {
             "secret": os.environ.get("secret"),
             "key": "",
         },
-    }
+    },
+    "facebook": {
+        "METHOD": "oauth2",
+        "SCOPE": ["email", "public_profile"],
+        "AUTH_PARAMS": {"auth_type": "reauthenticate"},
+        "INIT_PARAMS": {"cookie": True},
+        "FIELDS": ["first_name", "last_name", "picture"],
+        "APP": {
+            "client_id": os.environ.get("FACEBOOK_CLIENT_ID"),
+            "secret": os.environ.get("FACEBOOK_SECRET"),
+        },
+    },
 }
-
+# social account login
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_AUTHENTICATION_METHOD = "email"

@@ -7,7 +7,7 @@ from .views import (
     ListMilestones,
     PayInfluencer,
     WithdrawView,
-    DepositView,
+    #DepositView,
     BalanceCheck,
 )
 
@@ -19,6 +19,6 @@ urlpatterns = [
     path('list-milestones/', ListMilestones.as_view(), name='list_milestones'),
     path('pay-influencer/', PayInfluencer.as_view(), name='pay_influencer'),
     path('withdraw/', WithdrawView.as_view(), name='withdraw'),
-    path('deposit/', DepositView.as_view(), name='deposit'),
+   # path('deposit/', DepositView.as_view(), name='deposit'),
     path('balance-check/', BalanceCheck.as_view(), name='balance_check'),
 ]
