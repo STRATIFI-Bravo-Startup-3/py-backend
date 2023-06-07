@@ -1,11 +1,11 @@
-from django.http import HttpResponse
+from rest_framework.exceptions import ValidationError
+from rest_framework.response import Response
+
 from django.shortcuts import render, get_object_or_404
 from blog.models import BlogPost, Comment #,Category
 from rest_framework import generics
 from . import serializers
 from .serializers import create_comment_serializer
-from users import permissions
-from .forms import BlogPostForm
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser, IsAuthenticatedOrReadOnly
 from .pagination import PostPageNumberPagination
 from rest_framework.generics import CreateAPIView, DestroyAPIView, ListAPIView, RetrieveUpdateAPIView
@@ -14,28 +14,12 @@ from django.contrib.contenttypes.models import ContentType
 
 from rest_framework.filters import SearchFilter,OrderingFilter
 from django.db.models import Q
-# Create your views here.
 
-
-#class CategoryList(generics.ListCreateAPIView):
-#     queryset = Category.objects.all()
-#     serializer_class = serializers.CategorySerializer
-#     permission_classes = [IsAdminUser]
-
-#     def perform_create(self, serializer):
-#         serializer.save(owner=self.request.user)
-
-# class CategoryDetail(generics.RetrieveUpdateDestroyAPIView):
-#     queryset = Category.objects.all()
-#     serializer_class = serializers.CategorySerializer
-#     permission_classes = [IsOwnerOrReadOnly]
-    
-    
-          
+ #POSTS API         
 class BlogPostListAPIView(generics.ListCreateAPIView):
     queryset = BlogPost.objects.all()
     serializer_class = serializers.BlogPostListSerializer
-    permission_classes = [AllowAny, IsAdminUser]
+    permission_classes = [AllowAny, IsAdminUser ]
     search_fields = ['title', 'content', 'slug']
     lookup_field = 'slug'
 
@@ -65,7 +49,24 @@ class BlogPostDetailAPIView(generics.RetrieveAPIView):
 #Comment API
 class CommentCreateAPIView(CreateAPIView):
     queryset = Comment.objects.all()
-    #serializer_class = PostCreateUpdateSerializer
+    serializer_class = serializers.CommentListCreateSerializer
+    
+    
+    
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        print(data)
+        #content_type =request.META['CONTENT_TYPE']
+        object_id = data.get('object_id')
+        
+        comment = Comment.objects.create(
+            content=data['content'],
+            # content_type=content_type,
+            object_id=object_id,
+        )
+
+        return Response(comment.data, status=201)
+
 
 
     def get_serializer_class(self):

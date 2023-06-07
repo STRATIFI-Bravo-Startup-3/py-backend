@@ -1,5 +1,5 @@
 from rest_framework import serializers, viewsets
-from .models import BlogPost, Comment  # ,Category
+from .models import BlogPost, Comment  
 from users.models import User
 
 from rest_framework.serializers import (
@@ -13,25 +13,13 @@ from users.serializers import UserSerializer
 from django.contrib.contenttypes.models import ContentType
 
 
-# Post Serializers
-# class BlogPostCreateUpdateSerializer(ModelSerializer):
-#     class Meta:
-#         model = BlogPost
-#         fields = [
-#             'id',
-#             'title',
-#             'slug',
-#             'content',
-#             'publish'
-#         ]
-
-
 post_detail_url = HyperlinkedRelatedField(
     read_only=True, view_name="blog-posts:detail", lookup_field="slug"
 )
 
 
 class BlogPostDetailSerializer(ModelSerializer):
+    lookup_field = "slug"
     url = post_detail_url
     user = UserSerializer(read_only=True)
     image = SerializerMethodField()
@@ -88,6 +76,42 @@ class BlogPostListSerializer(ModelSerializer):
             "slug",
         ]
 
+
+# class PostSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = BlogPost
+#         fields = "__all__"
+#         readonly = ["modified_at", "created_at", "slug", "owner"]
+
+
+# class PostDetailSerializer(PostSerializer):
+#     comments = CommentSerializer(many=True)
+
+#     def update(self, instance, validated_data):
+#         comments = validated_data.pop("comments")
+
+#         instance = super(PostDetailSerializer, self).update(instance, validated_data)
+
+#         for comment_data in comments:
+#             if comment_data.get("id"):
+#                 # comment has an ID so was pre-existing
+#                 continue
+#             comment = Comment(**comment_data)
+#             comment.creator = self.context["request"].user
+#             comment.content_object = instance
+#             comment.save()
+
+#         return instance
+
+
+# class PostViewSet(viewsets.ModelViewSet):
+#     permission_classes = []
+#     queryset = BlogPost.objects.all()
+
+#     def get_serializer_class(self):
+#         if self.action in ("list", "create"):
+#             return PostSerializer
+#         return PostDetailSerializer
 
 # Comment Serializer
 def create_comment_serializer(model_type="post", slug=None, parent_id=None, user=None):
@@ -163,6 +187,24 @@ class CommentSerializer(ModelSerializer):
             return obj.children().count()
         return 0
 
+class CommentListCreateSerializer(CommentSerializer):
+    class Meta(CommentSerializer.Meta):
+        fields = CommentSerializer.Meta.fields + ["parent_id"]
+
+    parent_id = serializers.IntegerField(write_only=True, required=False)
+
+    def create(self, validated_data):
+        parent_id = validated_data.pop("parent_id", None)
+        if parent_id:
+            parent_comment = Comment.objects.get(id=parent_id)
+            validated_data["parent"] = parent_comment
+        return super().create(validated_data)
+
+
+class CommentEditSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ("id", "content")
 
 class CommentListSerializer(ModelSerializer):
     url = HyperlinkedIdentityField(view_name="comments-api:thread")
@@ -173,9 +215,6 @@ class CommentListSerializer(ModelSerializer):
         fields = [
             "url",
             "id",
-            # 'content_type',
-            # 'object_id',
-            # 'parent',
             "content",
             "reply_count",
             "created",
@@ -241,97 +280,3 @@ class CommentDetailSerializer(ModelSerializer):
         if obj.is_parent:
             return obj.children().count()
         return 0
-
-
-class PostSerializer(serializers.ModelSerializer):
-    # owner = serializers.HyperlinkedRelatedField(
-    #     queryset=User.objects.all(), view_name="api_user_detail", lookup_field="email", read_only = False
-    # )
-
-    class Meta:
-        model = BlogPost
-        fields = "__all__"
-        readonly = ["modified_at", "created_at"]
-
-
-class PostDetailSerializer(PostSerializer):
-    comments = CommentSerializer(many=True)
-
-    def update(self, instance, validated_data):
-        comments = validated_data.pop("comments")
-
-        instance = super(PostDetailSerializer, self).update(instance, validated_data)
-
-        for comment_data in comments:
-            if comment_data.get("id"):
-                # comment has an ID so was pre-existing
-                continue
-            comment = Comment(**comment_data)
-            comment.creator = self.context["request"].user
-            comment.content_object = instance
-            comment.save()
-
-        return instance
-
-
-class PostViewSet(viewsets.ModelViewSet):
-    permission_classes = []
-    queryset = BlogPost.objects.all()
-
-    def get_serializer_class(self):
-        if self.action in ("list", "create"):
-            return PostSerializer
-        return PostDetailSerializer
-
-
-class CommentListCreateSerializer(CommentSerializer):
-    class Meta(CommentSerializer.Meta):
-        fields = CommentSerializer.Meta.fields + ["parent_id"]
-
-    parent_id = serializers.IntegerField(write_only=True, required=False)
-
-    def create(self, validated_data):
-        parent_id = validated_data.pop("parent_id", None)
-        if parent_id:
-            parent_comment = Comment.objects.get(id=parent_id)
-            validated_data["parent"] = parent_comment
-        return super().create(validated_data)
-
-
-class CommentEditSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Comment
-        fields = ("id", "content")
-
-
-# class CategorySerializer(serializers.ModelSerializer):
-# owner = serializers.ReadOnlyField(source='owner.username')
-# posts = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-
-# class Meta:
-#     model = Category
-#     fields = ['id', 'name', 'owner', 'posts']
-
-# class BlogPostSerializer(serializers.ModelSerializer):
-#     owner = serializers.ReadOnlyField(source='owner.username')
-
-#     class Meta:
-#         model = BlogPost
-#         fields = ['id', 'title', 'body', 'owner']
-
-
-# class CommentSerializer(serializers.ModelSerializer):
-#     owner = serializers.ReadOnlyField(source='owner.username')
-
-#     class Meta:
-#         model  = Comments
-#         fields = ['id', 'body', 'owner', 'post']
-
-
-# class UserSerializer(serializers.ModelSerializer):
-#     posts = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-#     comments = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-
-#     class Meta:
-#         model = User
-#         fields = ['id', 'username', 'posts', 'comments']

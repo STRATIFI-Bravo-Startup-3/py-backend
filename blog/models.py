@@ -25,7 +25,7 @@ def post_upload_location(instance, filename):
 
 
 class BlogPost(models.Model):
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts", null=False)
     title = models.CharField(max_length=100)
     slug = models.SlugField(unique=True, blank=True)
     draft = models.BooleanField(default=False)
@@ -94,33 +94,61 @@ def pre_save_post_receiver(sender, instance, *args, **kwargs):
         
 pre_save.connect(pre_save_post_receiver, sender=BlogPost)
 
+# class CommentManager(models.Manager):
+#     def all(self):
+#         qs = super(CommentManager, self).filter(parent=None)
+#         return qs
+
+#     def filter_by_instance(self, instance):
+#         content_type = ContentType.objects.get_for_model(instance.__class__)
+#         obj_id = instance.id
+#         qs = super(CommentManager, self).filter(content_type=content_type, object_id= obj_id).filter(parent=None)
+#         return qs
+
+#     def create_by_model_type(self, model_type, slug, content, user, parent_obj=None):
+#         model_qs = ContentType.objects.filter(model=model_type)
+#         if model_qs.exists():
+#             SomeModel = model_qs.first().model_class()
+#             obj_qs = SomeModel.objects.filter(slug=slug)
+#             if obj_qs.exists() and obj_qs.count() == 1:
+#                 instance = self.model()
+#                 instance.content = content
+#                 instance.user = user
+#                 instance.content_type = model_qs.first()
+#                 instance.object_id = obj_qs.first().id
+#                 if parent_obj:
+#                     instance.parent = parent_obj
+#                 instance.save()
+#                 return instance
+#         return None
+
 class CommentManager(models.Manager):
     def all(self):
-        qs = super(CommentManager, self).filter(parent=None)
-        return qs
+        return super(CommentManager, self).filter(parent=None)
 
     def filter_by_instance(self, instance):
-        content_type = ContentType.objects.get_for_model(instance.__class__)
-        obj_id = instance.id
-        qs = super(CommentManager, self).filter(content_type=content_type, object_id= obj_id).filter(parent=None)
-        return qs
+        return super(CommentManager, self).filter(content_object=instance).filter(parent=None)
 
     def create_by_model_type(self, model_type, slug, content, user, parent_obj=None):
-        model_qs = ContentType.objects.filter(model=model_type)
-        if model_qs.exists():
-            SomeModel = model_qs.first().model_class()
-            obj_qs = SomeModel.objects.filter(slug=slug)
-            if obj_qs.exists() and obj_qs.count() == 1:
-                instance = self.model()
-                instance.content = content
-                instance.user = user
-                instance.content_type = model_qs.first()
-                instance.object_id = obj_qs.first().id
-                if parent_obj:
-                    instance.parent = parent_obj
-                instance.save()
-                return instance
-        return None
+        try:
+            SomeModel = model_type.model_class()
+        except AttributeError:
+            return None
+
+        try:
+            obj = SomeModel.objects.get(slug=slug)
+        except SomeModel.DoesNotExist:
+            return None
+
+        instance = self.model()
+        instance.content = content
+        instance.user = user
+        instance.content_object = obj
+        if parent_obj:
+            instance.parent = parent_obj
+        instance.save()
+        return instance
+
 
 class Comment(models.Model):
     owner=models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
