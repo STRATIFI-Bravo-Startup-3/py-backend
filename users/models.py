@@ -28,7 +28,7 @@ class RenameProfilePicture:
 
 class User(AbstractUser):
     class Role(models.TextChoices):
-        OTHER = "OTHER", "Other"
+        #OTHER = "OTHER", "Other"
         ADMIN = "ADMIN", "Admin"
         BRAND = "BRAND", "Brand"
         INFLUENCER = "INFLUENCER", "Influencer"

@@ -16,13 +16,12 @@ from rest_framework.filters import SearchFilter,OrderingFilter
 from django.db.models import Q
 
  #POSTS API         
-class BlogPostListAPIView(generics.ListCreateAPIView):
+class BlogPostListAPIView(generics.ListAPIView):
     queryset = BlogPost.objects.all()
     serializer_class = serializers.BlogPostListSerializer
-    permission_classes = [AllowAny, IsAdminUser ]
+    permission_classes = [AllowAny,]
     search_fields = ['title', 'content', 'slug']
-    lookup_field = 'slug'
-
+    
     def get_queryset(self, *args, **kwargs):
         queryset_list = BlogPost.objects.all()
         query = self.request.GET.get("q")
@@ -41,7 +40,21 @@ class BlogPostDetailAPIView(generics.RetrieveAPIView):
     permission_classes = [AuthorModifyOrReadOnly | IsAdminUserForObject]
     queryset = BlogPost.objects.all()
     serializer_class = serializers.BlogPostDetailSerializer
+    lookup_field = 'slug'
+
     pagination_class = PostPageNumberPagination
+    
+    def get_queryset(self, *args, **kwargs):
+        queryset_list = BlogPost.objects.all()
+        query = self.request.GET.get("q")
+        if query:
+            queryset_list = queryset_list.filter(
+                    Q(title__icontains=query)|
+                    Q(content__icontains=query)|
+                    Q(user__first_name__icontains=query) |
+                    Q(user__last_name__icontains=query)
+                    ).distinct()
+        return queryset_list 
     
 
     

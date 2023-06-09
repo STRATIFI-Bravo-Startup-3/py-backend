@@ -21,28 +21,28 @@ post_detail_url = HyperlinkedRelatedField(
 class BlogPostDetailSerializer(ModelSerializer):
     lookup_field = "slug"
     url = post_detail_url
-    user = UserSerializer(read_only=True)
-    image = SerializerMethodField()
-    html = SerializerMethodField()
-    comments = SerializerMethodField()
+    # owner = UserSerializer(read_only=True)
+    # image = SerializerMethodField()
+    # html = SerializerMethodField()
+    # comments = SerializerMethodField()
 
     class Meta:
         model = BlogPost
         fields = [
             "id",
             "url",
-            "user",
+            "owner",
             "title",
             "slug",
             "content",
-            "html",
+            # "html",
             "publish",
             "image",
             "comments",
         ]
 
-    def get_html(self, obj):
-        return obj.get_markdown()
+    # def get_html(self, obj):
+    #     return obj.get_markdown()
 
     def get_image(self, obj):
         try:
@@ -77,41 +77,6 @@ class BlogPostListSerializer(ModelSerializer):
         ]
 
 
-# class PostSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = BlogPost
-#         fields = "__all__"
-#         readonly = ["modified_at", "created_at", "slug", "owner"]
-
-
-# class PostDetailSerializer(PostSerializer):
-#     comments = CommentSerializer(many=True)
-
-#     def update(self, instance, validated_data):
-#         comments = validated_data.pop("comments")
-
-#         instance = super(PostDetailSerializer, self).update(instance, validated_data)
-
-#         for comment_data in comments:
-#             if comment_data.get("id"):
-#                 # comment has an ID so was pre-existing
-#                 continue
-#             comment = Comment(**comment_data)
-#             comment.creator = self.context["request"].user
-#             comment.content_object = instance
-#             comment.save()
-
-#         return instance
-
-
-# class PostViewSet(viewsets.ModelViewSet):
-#     permission_classes = []
-#     queryset = BlogPost.objects.all()
-
-#     def get_serializer_class(self):
-#         if self.action in ("list", "create"):
-#             return PostSerializer
-#         return PostDetailSerializer
 
 # Comment Serializer
 def create_comment_serializer(model_type="post", slug=None, parent_id=None, user=None):
