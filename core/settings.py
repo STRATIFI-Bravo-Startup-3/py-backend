@@ -34,7 +34,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [*]
+ALLOWED_HOSTS = ["*", "stratifi.pythonanywhere", "localhost"]
 
 
 # Application definition
@@ -249,10 +249,10 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 
 # EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = os.environ.get('EMAIL_HOST')
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = os.environ.get("EMAIL_HOST")
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 # 25, 587	(for unencrypted/TLS connections)
 # 465	(for SSL connections)
 EMAIL_PORT = 587
@@ -262,8 +262,8 @@ EMAIL_USE_TLS = True
 
 # Wallet
 # Paystack
-PAYSTACK_SECRET_KEY = os.environ.get('PAYSTACK_SECRET_KEY', 'default_secret_key')
-PAYSTACK_PUBLIC_KEY = os.environ.get('PAYSTACK_PUBLIC_KEY', 'default_public_key')
+PAYSTACK_SECRET_KEY = os.environ.get("PAYSTACK_SECRET_KEY", "default_secret_key")
+PAYSTACK_PUBLIC_KEY = os.environ.get("PAYSTACK_PUBLIC_KEY", "default_public_key")
 
 
 # Chat Function
