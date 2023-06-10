@@ -60,40 +60,39 @@ class BlogPostDetailAPIView(generics.RetrieveAPIView):
     
     
 #Comment API
-class CommentCreateAPIView(CreateAPIView):
-    queryset = Comment.objects.all()
-    serializer_class = serializers.CommentListCreateSerializer
+# class CommentCreateAPIView(CreateAPIView):
+#     queryset = Comment.objects.all()
+#     serializer_class = serializers.CommentCreateSerializer
     
     
     
-    def post(self, request, *args, **kwargs):
-        data = request.data
-        print(data)
-        #content_type =request.META['CONTENT_TYPE']
-        object_id = data.get('object_id')
+    # def post(self, request, *args, **kwargs):
+    #     data = request.data
+    #     #content_type =request.META['CONTENT_TYPE']
+    #     # object_id = data.get('object_id')
         
-        comment = Comment.objects.create(
-            content=data['content'],
-            # content_type=content_type,
-            object_id=object_id,
-        )
+    #     comment = Comment.objects.create(
+    #         content=data['content'],
+    #         # content_type=content_type,
+    #         # object_id=object_id,
+    #     )
 
-        return Response(comment.data, status=201)
+    #     return Response(comment.data, status=201)
 
 
 
-    def get_serializer_class(self):
-        model_type = self.request.GET.get("type")
-        slug = self.request.GET.get("slug")
-        parent_id = self.request.GET.get("parent_id", None)
-        return create_comment_serializer(
-                model_type=model_type, 
-                slug=slug, 
-                parent_id=parent_id,
-                user=self.request.user
-                )
+    # def get_serializer_class(self):
+    #     model_type = self.request.GET.get("type")
+    #     slug = self.request.GET.get("slug")
+    #     parent_id = self.request.GET.get("parent_id", None)
+    #     return create_comment_serializer(
+    #             model_type=model_type, 
+    #             slug=slug, 
+    #             parent_id=parent_id,
+    #             user=self.request.user
+    #             )
 
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
 
 class CommentListAPIView(ListAPIView):
     serializer_class = serializers.CommentListSerializer
@@ -125,8 +124,8 @@ class CommentDetailAPIView(RetrieveUpdateAPIView, DestroyAPIView):
         return obj
 
 
-class CommentListCreateAPIView(generics.ListCreateAPIView):
-    serializer_class = serializers.CommentListCreateSerializer
+class CommentCreateAPIView(generics.ListCreateAPIView):
+    serializer_class = serializers.CommentCreateSerializer
     permission_classes = [AllowAny]
     filter_backends= [SearchFilter, OrderingFilter]
     search_fields = ['content', 'user__first_name']
@@ -168,7 +167,7 @@ class CommentDeleteAPIView(DestroyAPIView):
     permission_classes = [IsOwnerOrReadOnly]
 
 class CommentChildListAPIView(generics.ListAPIView):
-    serializer_class = serializers.CommentListCreateSerializer
+    # serializer_class = serializers.CommentListCreateSerializer
     permission_classes = [AllowAny]
     filter_backends= [SearchFilter, OrderingFilter]
     search_fields = ['content', 'user__first_name']

@@ -152,17 +152,17 @@ class CommentSerializer(ModelSerializer):
             return obj.children().count()
         return 0
 
-class CommentListCreateSerializer(CommentSerializer):
-    class Meta(CommentSerializer.Meta):
-        fields = CommentSerializer.Meta.fields + ["parent_id"]
+class CommentCreateSerializer(CommentSerializer):
+    # class Meta(CommentSerializer.Meta):
+    #     fields = CommentSerializer.Meta.fields + ["parent_id"]
 
-    parent_id = serializers.IntegerField(write_only=True, required=False)
+    # parent_id = serializers.IntegerField(write_only=True, required=False)
 
     def create(self, validated_data):
-        parent_id = validated_data.pop("parent_id", None)
-        if parent_id:
-            parent_comment = Comment.objects.get(id=parent_id)
-            validated_data["parent"] = parent_comment
+        # parent_id = validated_data.pop("parent_id", None)
+        # if parent_id:
+        #     parent_comment = Comment.objects.get(id=parent_id)
+        #     validated_data["parent"] = parent_comment
         return super().create(validated_data)
 
 
