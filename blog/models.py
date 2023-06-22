@@ -69,13 +69,17 @@ class BlogPost(models.Model):
     @property
     def comments(self):
         content_type = ContentType.objects.get_for_model(self)
-        return Comment.objects.filter(content_type=content_type, object_id=self.id, parent=None)
+        return Comment.objects.filter(content_type=content_type, object_id=self.id)
 
     @property
     def get_content_type(self):
         instance = self
         content_type = ContentType.objects.get_for_model(instance.__class__)
         return content_type
+    
+    def __str__(self):
+        return self.title
+
     
     
 def create_slug(instance, new_slug=None):
@@ -97,52 +101,48 @@ def pre_save_post_receiver(sender, instance, *args, **kwargs):
 pre_save.connect(pre_save_post_receiver, sender=BlogPost)
 
 
-class CommentManager(models.Manager):
-    def all(self):
-        return super(CommentManager, self).filter(parent=None)
+# class CommentManager(models.Manager):
+#     def all(self):
+#         return super(CommentManager, self).filter(parent=None)
 
-    def filter_by_instance(self, instance):
-        return super(CommentManager, self).filter(content_object=instance).filter(parent=None)
+#     def filter_by_instance(self, instance):
+#         return super(CommentManager, self).filter(content_object=instance).filter(parent=None)
 
-    def create_by_model_type(self, model_type, slug, content, user, parent_obj=None):
-        try:
-            SomeModel = model_type.model_class()
-        except AttributeError:
-            return None
+#     def create_by_model_type(self, model_type, slug, content, user, parent_obj=None):
+#         try:
+#             SomeModel = model_type.model_class()
+#         except AttributeError:
+#             return None
 
-        try:
-            obj = SomeModel.objects.get(slug=slug)
-        except SomeModel.DoesNotExist:
-            return None
+#         try:
+#             obj = SomeModel.objects.get(slug=slug)
+#         except SomeModel.DoesNotExist:
+#             return None
 
-        instance = self.model()
-        instance.content = content
-        instance.user = user
-        instance.content_object = obj
-        if parent_obj:
-            instance.parent = parent_obj
-        instance.save()
-        return instance
+#         instance = self.model()
+#         instance.content = content
+#         instance.user = user
+#         instance.content_object = obj
+#         if parent_obj:
+#             instance.parent = parent_obj
+#         instance.save()
+#         return instance
 
 
 class Comment(models.Model):
     owner=models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
     post = models.ForeignKey(BlogPost, on_delete=models.CASCADE, related_name='comments')
+    replies = models.ForeignKey('Reply', on_delete=models.CASCADE, related_name='replies', null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     content = models.TextField()
-    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='replies')
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'object_id')
     
-
-    objects = CommentManager()
+    # objects = CommentManager()
 
     class Meta:
         ordering = ['-created', ]
 
     def __str__(self):
-        return f'Comment by {self.owner.username} on {self.content_object}'
+        return f"Comment by {self.owner.username} on {self.post.title}"
 
     def get_absolute_url(self):
         return reverse('comment_detail', kwargs={'pk': self.pk})
@@ -152,7 +152,14 @@ class Comment(models.Model):
 
     def children(self):
         return self.replies.all()
+    
+    
+    
+class Reply(models.Model):
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
 
-    @property
-    def is_parent(self):
-        return not self.parent
+    def __str__(self):
+        return f"Reply by {self.owner.username} on {self.comment.post.title}"
+

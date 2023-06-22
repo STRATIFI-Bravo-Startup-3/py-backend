@@ -6,10 +6,9 @@ from .views import (BlogPostListAPIView,
     CommentCreateAPIView,
     CommentListAPIView,
     CommentDetailAPIView,
-    # CommentListCreateAPIView,
     CommentEditAPIView,
     CommentDeleteAPIView,
-    CommentChildListAPIView)
+    )
 
 app_name = 'blog'
 
@@ -20,12 +19,8 @@ app_name = 'blog'
 
 urlpatterns = [
     re_path(r'^ckeditor/', include('ckeditor_uploader.urls')),
-    
-    #re_path('', include('rest.urls', namespace='rest')),
-    # path("", include(router.urls)),
     path('posts/', BlogPostListAPIView.as_view(), name='post_list'),
     #path('posts/create', BlogPostCreateAPIView.as_view(), name='post_create'),
-    #path('posts/<slug:slug>/', BlogPostDeleteAPIView.as_view(), name='post_delete'),
     path('posts/<slug:slug>/', BlogPostDetailAPIView.as_view(), name='post_detail'),
     path('comments/create/', CommentCreateAPIView.as_view(), name='comment_create'),
     path('comments/list/', CommentListAPIView.as_view(), name='comment_list'),
@@ -33,7 +28,6 @@ urlpatterns = [
     path('comments/<int:post_id>/list-create/', CommentCreateAPIView.as_view(), name='comment_list_create'),
     path('comments/<int:pk>/edit/', CommentEditAPIView.as_view(), name='comment_edit'),
     path('comments/<int:pk>/delete/', CommentDeleteAPIView.as_view(), name='comment_delete'),
-    path('comments/<int:pk>/children/', CommentChildListAPIView.as_view(), name='comment_child_list'),
 ]
 
 
