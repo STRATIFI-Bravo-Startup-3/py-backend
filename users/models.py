@@ -28,7 +28,7 @@ class RenameProfilePicture:
 
 class User(AbstractUser):
     class Role(models.TextChoices):
-        OTHER = "OTHER", "Other"
+        #OTHER = "OTHER", "Other"
         ADMIN = "ADMIN", "Admin"
         BRAND = "BRAND", "Brand"
         INFLUENCER = "INFLUENCER", "Influencer"
@@ -136,6 +136,7 @@ class BrandProfile(models.Model):
     ratings = models.PositiveIntegerField(choices=RATING_CHOICES, blank=True, null=True)
     company_name = models.CharField(max_length=200, null=True, blank=True)
     contact_person = models.CharField(max_length=200, null=True, blank=True)
+    
 
     class CompanySize(models.TextChoices):
         MICRO = "Micro", "1-9 employees"

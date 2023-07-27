@@ -338,6 +338,7 @@ DJOSER = {
         "user": "users.serializers.MyUserSerializer",
         "user_create": "users.serializers.UserCreateSerializer",
         "user_delete": "djoser.serializers.UserDeleteSerializer",
+        'current_user': 'backend.accounts.serializers.UserSerializer',
     },
     "EMAIL": {
         "activation": "users.emails.email.ActivationEmail",

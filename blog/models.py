@@ -7,7 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.text import slugify
 from django.utils import timezone
 from django.contrib.contenttypes.fields import GenericForeignKey
-
+from users.models import User as user
 User = get_user_model()
 
 
@@ -25,18 +25,20 @@ def post_upload_location(instance, filename):
 
 
 class BlogPost(models.Model):
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
+    owner = models.ForeignKey(user, on_delete=models.CASCADE, related_name="posts", null=False)
     title = models.CharField(max_length=100)
-    slug = models.SlugField(unique=True, blank=True)
-    draft = models.BooleanField(default=False)
-    content = RichTextField(config_name='default')
-    created_at = models.DateTimeField(blank=True, auto_now_add=True)
-    publish = models.DateField(auto_now=False, auto_now_add=False, null=True)
     image = models.ImageField(upload_to=post_upload_location,
                               null=True,
                               blank=True,
                               width_field="width_field",
                               height_field="height_field")
+    slug = models.SlugField(unique=True, blank=True,)
+    
+    draft = models.BooleanField(default=False)
+    content = RichTextField(config_name='default')
+    created_at = models.DateTimeField(blank=True, auto_now_add=True)
+    publish = models.DateField(auto_now=False, auto_now_add=False, null=True)
+    
     height_field = models.IntegerField(default=0, blank=True)
     width_field = models.IntegerField(default=0, blank=True)
 
@@ -67,13 +69,17 @@ class BlogPost(models.Model):
     @property
     def comments(self):
         content_type = ContentType.objects.get_for_model(self)
-        return Comment.objects.filter(content_type=content_type, object_id=self.id, parent=None)
+        return Comment.objects.filter(content_type=content_type, object_id=self.id)
 
     @property
     def get_content_type(self):
         instance = self
         content_type = ContentType.objects.get_for_model(instance.__class__)
         return content_type
+    
+    def __str__(self):
+        return self.title
+
     
     
 def create_slug(instance, new_slug=None):
@@ -94,52 +100,49 @@ def pre_save_post_receiver(sender, instance, *args, **kwargs):
         
 pre_save.connect(pre_save_post_receiver, sender=BlogPost)
 
-class CommentManager(models.Manager):
-    def all(self):
-        qs = super(CommentManager, self).filter(parent=None)
-        return qs
 
-    def filter_by_instance(self, instance):
-        content_type = ContentType.objects.get_for_model(instance.__class__)
-        obj_id = instance.id
-        qs = super(CommentManager, self).filter(content_type=content_type, object_id= obj_id).filter(parent=None)
-        return qs
+# class CommentManager(models.Manager):
+#     def all(self):
+#         return super(CommentManager, self).filter(parent=None)
 
-    def create_by_model_type(self, model_type, slug, content, user, parent_obj=None):
-        model_qs = ContentType.objects.filter(model=model_type)
-        if model_qs.exists():
-            SomeModel = model_qs.first().model_class()
-            obj_qs = SomeModel.objects.filter(slug=slug)
-            if obj_qs.exists() and obj_qs.count() == 1:
-                instance = self.model()
-                instance.content = content
-                instance.user = user
-                instance.content_type = model_qs.first()
-                instance.object_id = obj_qs.first().id
-                if parent_obj:
-                    instance.parent = parent_obj
-                instance.save()
-                return instance
-        return None
+#     def filter_by_instance(self, instance):
+#         return super(CommentManager, self).filter(content_object=instance).filter(parent=None)
+
+#     def create_by_model_type(self, model_type, slug, content, user, parent_obj=None):
+#         try:
+#             SomeModel = model_type.model_class()
+#         except AttributeError:
+#             return None
+
+#         try:
+#             obj = SomeModel.objects.get(slug=slug)
+#         except SomeModel.DoesNotExist:
+#             return None
+
+#         instance = self.model()
+#         instance.content = content
+#         instance.user = user
+#         instance.content_object = obj
+#         if parent_obj:
+#             instance.parent = parent_obj
+#         instance.save()
+#         return instance
+
 
 class Comment(models.Model):
     owner=models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
     post = models.ForeignKey(BlogPost, on_delete=models.CASCADE, related_name='comments')
+    replies = models.ForeignKey('Reply', on_delete=models.CASCADE, related_name='replies', null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     content = models.TextField()
-    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='replies')
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'object_id')
     
-
-    objects = CommentManager()
+    # objects = CommentManager()
 
     class Meta:
         ordering = ['-created', ]
 
     def __str__(self):
-        return f'Comment by {self.owner.username} on {self.content_object}'
+        return f"Comment by {self.owner.username} on {self.post.title}"
 
     def get_absolute_url(self):
         return reverse('comment_detail', kwargs={'pk': self.pk})
@@ -149,7 +152,14 @@ class Comment(models.Model):
 
     def children(self):
         return self.replies.all()
+    
+    
+    
+class Reply(models.Model):
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
 
-    @property
-    def is_parent(self):
-        return not self.parent
+    def __str__(self):
+        return f"Reply by {self.owner.username} on {self.comment.post.title}"
+
